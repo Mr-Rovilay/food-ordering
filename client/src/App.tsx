@@ -5,7 +5,7 @@ import { Toaster } from "react-hot-toast";
 import ForgotPassword from "./auth/ForgotPassword";
 import ResetPassword from "./auth/ResetPassword";
 import VerifyEmail from "./auth/verifyEmail";
-import Navbar from "./components/Navbar";
+import HomePage from "./pages/HomePage";
 
 const App = () => {
   return (
@@ -13,7 +13,7 @@ const App = () => {
       <Toaster />
       <>
         <Routes>
-        <Route path="/" element={<Navbar/>} />
+        <Route path="/" element={<HomePage/>} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />

@@ -34,7 +34,7 @@ const Navbar = () => {
     <div className="sticky top-0 z-50 border border-b-1 max-padd-container">
       <div className="flex items-center justify-between h-16">
         <Link to={"/"}>
-          <h1 className="text-2xl font-bold md:font-extrabold">FoodPalace</h1>
+          <h1 className="text-xl font-bold md:font-extrabold">FoodPalace</h1>
         </Link>
         <div className="items-center hidden gap-10 md:flex">
           <div className="items-center hidden gap-6 md:flex">
