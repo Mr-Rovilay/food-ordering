@@ -75,8 +75,9 @@ const Testimonials: React.FC = () => {
   return (
     <section className="py-16 bg-gray-100">
       <div className="container px-4 mx-auto sm:px-6 lg:px-8">
-        <h2 className="mb-12 text-4xl font-bold text-center text-gray-800">
+      <h2 className="relative inline-block mb-12 text-xl font-bold text-center text-gray-800">
           What Our Customers Say
+          <span className="absolute bottom-0 left-0 w-full h-1 transform -translate-y-2 bg-gradient-to-r from-green via-green to-green"></span>
         </h2>
         <div className="relative overflow-hidden" ref={emblaRef}>
           <div className="flex">
@@ -91,7 +92,7 @@ const Testimonials: React.FC = () => {
                         alt={testimonial.name}
                       />
                       <div>
-                        <h3 className="text-lg font-semibold text-gray-900">{testimonial.name}</h3>
+                        <h3 className="text-sm font-semibold text-gray-900">{testimonial.name}</h3>
                         <p className="text-sm text-gray-600">{testimonial.role}</p>
                       </div>
                     </div>

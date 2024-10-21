@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { Search } from 'lucide-react';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
+import { useNavigate } from 'react-router-dom';
 
 const HeroSection: React.FC = () => {
     const [searchText, setSearchText] = useState<string>(""); // Changed from {} to ()
+    const navigate = useNavigate()
   return (
-    <div className="min-h-screen max-padd-container">
+    <div className="max-padd-container">
       <div className="flex flex-col items-center justify-between py-12 mx-auto gap-7 sm:py-24 lg:flex-row">
         {/* Left side - Text and Search */}
         <div className="w-full mb-8 lg:w-1/2 lg:mb-0">
@@ -27,6 +29,7 @@ const HeroSection: React.FC = () => {
             <Button
               className="absolute p-2 -translate-y-1/2 rounded-full right-1 top-1/2"
               size="icon"
+              onClick={()=> navigate(`/search/${searchText}`)}
             >
               <Search className="w-5 h-5" />
             </Button>
