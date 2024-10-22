@@ -24,6 +24,8 @@ const App: React.FC = () => {
   return (
     <>
       <Toaster />
+      {/* <div className="bg-[#f9f9f9] text-[#404040]"> */}
+
       {showNavbar() && <Navbar />}
       <Routes>
         <Route path="/" element={<HomePage />} />
@@ -36,6 +38,7 @@ const App: React.FC = () => {
         <Route path="/profile" element={<Profile />} />
         <Route path="*" element={<PageNotFound />} />
       </Routes>
+      {/* </div> */}
     </>
   );
 };
