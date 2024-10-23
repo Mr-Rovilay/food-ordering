@@ -47,13 +47,13 @@ const Navbar = () => {
               <MenubarMenu >
                 <MenubarTrigger className="text-sm cursor-pointer">Dashboard</MenubarTrigger>
                 <MenubarContent >
-                  <Link to={"admin/restaurant"}>
+                  <Link to={"/admin/restaurant"}>
                     <MenubarItem className="text-sm cursor-pointer">Restaurant</MenubarItem>
                   </Link>
-                  <Link to={"admin/Menu"}>
+                  <Link to={"/admin/menu"}>
                     <MenubarItem className="text-sm cursor-pointer">Menu</MenubarItem>
                   </Link>
-                  <Link to={"admin/orders"}>
+                  <Link to={"/admin/orders"}>
                     <MenubarItem className="text-sm cursor-pointer">Orders</MenubarItem>
                   </Link>
                 </MenubarContent>
@@ -149,7 +149,7 @@ const MobileNav  =() => {
           <HandPlatter/>
           <span>Order</span>
           </Link>
-          <Link to={"/profile"} className="flex items-center gap-4 px-3 py-2 font-medium rounded-lg cursor-pointer hover:bg-gray-200 hover:text-gray-900">
+          <Link to={"/cart"} className="flex items-center gap-4 px-3 py-2 font-medium rounded-lg cursor-pointer hover:bg-gray-200 hover:text-gray-900">
           <ShoppingCart/>
           <span>Cart (0)</span>
           </Link>
@@ -157,7 +157,7 @@ const MobileNav  =() => {
           <SquareMenu/>
           <span>Menu</span>
           </Link>
-          <Link to={"/orders"} className="flex items-center gap-4 px-3 py-2 font-medium rounded-lg cursor-pointer hover:bg-gray-200 hover:text-gray-900">
+          <Link to={"/admin/restaurant"} className="flex items-center gap-4 px-3 py-2 font-medium rounded-lg cursor-pointer hover:bg-gray-200 hover:text-gray-900">
           <UtensilsCrossed/>
           <span>Restaurant</span>
           </Link>

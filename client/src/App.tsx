@@ -11,6 +11,9 @@ import Profile from "./components/Profile";
 import PageNotFound from "./components/PageNotFound";
 import SearchPage from "./pages/SearchPage";
 import VerifyEmail from './auth/verifyEmail';
+import RestaurantDetail from './pages/RestaurantDetail';
+import Cart from './components/Cart';
+import Restaurant from './admin/Restaurant';
 
 const App: React.FC = () => {
   const location = useLocation();
@@ -30,6 +33,9 @@ const App: React.FC = () => {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/search/:text" element={<SearchPage />} />
+        <Route path="/restaurant/:id" element={<RestaurantDetail />} />
+        <Route path="/cart" element={<Cart />} />
+        <Route path="/admin/restaurant" element={<Restaurant />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
