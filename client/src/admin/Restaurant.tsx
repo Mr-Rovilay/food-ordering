@@ -43,7 +43,7 @@ const restaurantSchema = z.object({
   instagram: z.string().min(1, "Instagram handle is required"),
   facebook: z.string().min(1, "Facebook page name is required"),
   cuisines: z.array(z.string()).min(1, "At least one cuisine is required"),
-  imageFile: z.instanceof(File).optional(),
+  imageFile: z.instanceof(File).optional().refine((file) => file?.size !==0,{message: "Image file is required"}),
   menu: z.array(menuCategorySchema).min(1, "At least one menu category is required"),
 })
 

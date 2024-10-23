@@ -21,6 +21,15 @@ import {
   CardTitle,
 } from "./ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { z } from "zod";
+
+// Zod schema for form validation
+const profileSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters long"),
+  email: z.string().email("Invalid email address"),
+  location: z.string().min(2, "Location must be at least 2 characters long"),
+  bio: z.string().max(200, "Bio must be 200 characters or less"),
+});
 
 const Profile: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
@@ -34,12 +43,14 @@ const Profile: React.FC = () => {
     avatar: "/profile.jpg",
   });
   const [newAvatar, setNewAvatar] = useState<File | null>(null);
+  const [errors, setErrors] = useState<z.ZodIssue[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleEdit = () => {
     setIsEditing(!isEditing);
     if (!isEditing) {
       setNewAvatar(null);
+      setErrors([]); // Clear errors on cancel
     }
   };
 
@@ -47,12 +58,18 @@ const Profile: React.FC = () => {
     e.preventDefault();
     setIsLoading(true);
 
+    // Validate form data using Zod schema
+    const result = profileSchema.safeParse(profile);
+    if (!result.success) {
+      // If validation fails, set errors and stop submission
+      setErrors(result.error.issues);
+      setIsLoading(false);
+      return;
+    }
+
     // Simulate saving process (e.g., backend call)
     setTimeout(() => {
-      // Here you would typically send the updated profile to your backend
       if (newAvatar) {
-        // In a real application, you'd upload the file to your server here
-        // and get back a URL to set as the new avatar
         setProfile((prev) => ({
           ...prev,
           avatar: URL.createObjectURL(newAvatar),
@@ -81,6 +98,11 @@ const Profile: React.FC = () => {
     if (e.target.files && e.target.files[0]) {
       setNewAvatar(e.target.files[0]);
     }
+  };
+
+  const getError = (field: keyof typeof profile) => {
+    const error = errors.find((err) => err.path[0] === field);
+    return error ? error.message : null;
   };
 
   return (
@@ -147,6 +169,9 @@ const Profile: React.FC = () => {
                     onChange={handleChange}
                     disabled={!isEditing}
                   />
+                  {getError("name") && (
+                    <p className="text-sm text-red-500">{getError("name")}</p>
+                  )}
                 </div>
                 <div>
                   <Label htmlFor="email">Email</Label>
@@ -158,6 +183,9 @@ const Profile: React.FC = () => {
                     onChange={handleChange}
                     disabled={!isEditing}
                   />
+                  {getError("email") && (
+                    <p className="text-sm text-red-500">{getError("email")}</p>
+                  )}
                 </div>
                 <div>
                   <Label htmlFor="location">Location</Label>
@@ -168,6 +196,11 @@ const Profile: React.FC = () => {
                     onChange={handleChange}
                     disabled={!isEditing}
                   />
+                  {getError("location") && (
+                    <p className="text-sm text-red-500">
+                      {getError("location")}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <Label htmlFor="joinDate">Join Date</Label>
@@ -189,12 +222,15 @@ const Profile: React.FC = () => {
                   disabled={!isEditing}
                   rows={4}
                 />
+                {getError("bio") && (
+                  <p className="text-sm text-red-500">{getError("bio")}</p>
+                )}
               </div>
             </div>
             {isEditing && (
               <Button
                 type="submit"
-                className="mt-4 bg-green hover:bg-hoverGreen"
+                className="mt-4"
                 disabled={isLoading}
               >
                 {isLoading ? (
