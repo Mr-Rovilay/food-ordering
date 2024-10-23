@@ -13,7 +13,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Loader2, Plus, Edit2 } from "lucide-react";
 import {
   Form,
@@ -25,6 +24,7 @@ import {
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
+import EditMenu from "./EditMenu";
 
 const menuFormSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -78,7 +78,7 @@ export default function AddMenu() {
     const newMenu: Menu = {
       ...data,
       id: Date.now().toString(),
-      image: data.image ? URL.createObjectURL(data.image) : "/placeholder.svg?height=96&width=96",
+      image: data.image, // Keep as File | undefined
     };
     setMenus([...menus, newMenu]);
     setOpen(false);
@@ -180,7 +180,7 @@ export default function AddMenu() {
             <CardContent className="p-4">
               <div className="flex items-center space-x-4">
                 <img
-                  src={menu.image}
+                  src={menu.image ? URL.createObjectURL(menu.image) : undefined} // Convert File to URL
                   alt={menu.name}
                   className="object-cover w-24 h-24 rounded-md"
                 />
@@ -207,7 +207,7 @@ export default function AddMenu() {
         ))}
       </div>
       {/* Placeholder for EditMenu component */}
-      {/* <EditMenu selectedMenu={selectedMenu} editOpen={editOpen} setEditOpen={setEditOpen} /> */}
+      <EditMenu selectedMenu={selectedMenu} editOpen={editOpen} setEditOpen={setEditOpen} />
     </div>
   );
 }

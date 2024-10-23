@@ -145,7 +145,7 @@ const MobileNav  =() => {
           <User/>
           <span>Profile</span>
           </Link>
-          <Link to={"/order"} className="flex items-center gap-4 px-3 py-2 font-medium rounded-lg cursor-pointer hover:bg-gray-200 hover:text-gray-900">
+          <Link to={"/order/status"} className="flex items-center gap-4 px-3 py-2 font-medium rounded-lg cursor-pointer hover:bg-gray-200 hover:text-gray-900">
           <HandPlatter/>
           <span>Order</span>
           </Link>
@@ -161,7 +161,7 @@ const MobileNav  =() => {
           <UtensilsCrossed/>
           <span>Restaurant</span>
           </Link>
-          <Link to={"/profile"} className="flex items-center gap-4 px-3 py-2 font-medium rounded-lg cursor-pointer hover:bg-gray-200 hover:text-gray-900">
+          <Link to={"/admin/orders"} className="flex items-center gap-4 px-3 py-2 font-medium rounded-lg cursor-pointer hover:bg-gray-200 hover:text-gray-900">
           <PackageCheck/>
           <span>Restaurant Orders</span>
           </Link>

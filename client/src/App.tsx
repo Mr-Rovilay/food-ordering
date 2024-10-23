@@ -15,6 +15,8 @@ import RestaurantDetail from './pages/RestaurantDetail';
 import Cart from './components/Cart';
 import Restaurant from './admin/Restaurant';
 import AddMenu from './admin/AddMenu';
+import Orders from './admin/Orders';
+import Success from './components/Success';
 
 
 const App: React.FC = () => {
@@ -35,11 +37,13 @@ const App: React.FC = () => {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/search/:text" element={<SearchPage />} />
-        <Route path="/restaurant/:id" element={<RestaurantDetail />} />
         <Route path="/cart" element={<Cart />} />
+        <Route path="/order/status" element={<Success />} />
         {/* admin */}
+        <Route path="/restaurant/:id" element={<RestaurantDetail />} />
         <Route path="/admin/restaurant" element={<Restaurant />} />
         <Route path="/admin/menu" element={<AddMenu />} />
+        <Route path="/admin/orders" element={<Orders />} />
 
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
