@@ -4,6 +4,7 @@ import connectDB from "./db/db";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import userRoute from "./routes/userRoute";
 
 dotenv.config();
 
@@ -22,6 +23,8 @@ app.use(cors({
     allowedHeaders: ["Content-Type", "Authorization"],
   }));
 
+
+  app.use("/api/user", userRoute);
 
 
   connectDB().then(() => {
