@@ -24,21 +24,29 @@ import {
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import EditMenu from "./EditMenu";
 
 const menuFormSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   description: z.string().min(10, "Description must be at least 10 characters"),
   price: z.number().min(0, "Price must be a positive number"),
+  category: z.string().min(1, "Category is required"),
   image: z.instanceof(File).optional(),
 });
 
 type MenuFormSchema = z.infer<typeof menuFormSchema>;
 
 interface Menu extends MenuFormSchema {
-    id: string;
-    image?: File; // Changed from string to File | undefined
-  }
+  id: string;
+  image?: File;
+}
 
 const mockMenus: Menu[] = [
   {
@@ -46,16 +54,20 @@ const mockMenus: Menu[] = [
     name: "Spicy Chicken Burger",
     description: "Juicy chicken patty with a spicy kick, fresh veggies, and our secret sauce.",
     price: 12.99,
-    image: undefined, // Changed from string to undefined
+    category: "Main Course",
+    image: undefined,
   },
   {
     id: "2",
     name: "Vegetarian Pizza",
     description: "Loaded with fresh vegetables, mozzarella cheese, and our homemade tomato sauce.",
     price: 14.99,
-    image: undefined, // Changed from string to undefined
+    category: "Main Course",
+    image: undefined,
   },
 ];
+
+const categories = ["Appetizer", "Main Course", "Dessert","Swallows","Drinks","Rice Dishes","Soups","Stews","Grilled" ];
 
 export default function AddMenu() {
   const [open, setOpen] = useState(false);
@@ -69,6 +81,7 @@ export default function AddMenu() {
       name: "",
       description: "",
       price: 0,
+      category: "",
     },
   });
 
@@ -78,7 +91,7 @@ export default function AddMenu() {
     const newMenu: Menu = {
       ...data,
       id: Date.now().toString(),
-      image: data.image, // Keep as File | undefined
+      image: data.image,
     };
     setMenus([...menus, newMenu]);
     setOpen(false);
@@ -144,14 +157,38 @@ export default function AddMenu() {
                     </FormItem>
                   )}
                 />
+                <FormField
+                  control={form.control}
+                  name="category"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Category</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a category" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {categories.map((category) => (
+                            <SelectItem key={category} value={category}>
+                              {category}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <FormField 
                   control={form.control}
                   name="image"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Upload Menu Image</FormLabel>
-                      <FormControl >
-                        <Input  type="file" accept="image/*" onChange={(e) => field.onChange(e.target.files?.[0])} />
+                      <FormControl>
+                        <Input type="file" accept="image/*" onChange={(e) => field.onChange(e.target.files?.[0])} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -180,13 +217,14 @@ export default function AddMenu() {
             <CardContent className="p-4">
               <div className="flex items-center space-x-4">
                 <img
-                  src={menu.image ? URL.createObjectURL(menu.image) : undefined} // Convert File to URL
+                  src={menu.image ? URL.createObjectURL(menu.image) : "/placeholder.svg?height=96&width=96"}
                   alt={menu.name}
                   className="object-cover w-24 h-24 rounded-md"
                 />
                 <div className="flex-1">
                   <h2 className="text-lg font-semibold">{menu.name}</h2>
                   <p className="text-sm text-gray-600 line-clamp-2">{menu.description}</p>
+                  <p className="mt-1 text-sm text-gray-500">{menu.category}</p>
                   <p className="mt-2 font-semibold text-primary">₦{menu.price.toFixed(2)}</p>
                 </div>
               </div>
@@ -206,7 +244,6 @@ export default function AddMenu() {
           </Card>
         ))}
       </div>
-      {/* Placeholder for EditMenu component */}
       <EditMenu selectedMenu={selectedMenu} editOpen={editOpen} setEditOpen={setEditOpen} />
     </div>
   );

@@ -1,11 +1,10 @@
 import { useState } from 'react'
-import { useForm, SubmitHandler, useFieldArray } from 'react-hook-form'
+import { useForm, SubmitHandler } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { toast } from 'react-hot-toast'
-import { Loader2, Plus } from 'lucide-react'
+import { Loader2} from 'lucide-react'
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -17,19 +16,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Textarea } from "@/components/ui/textarea"
-import { Card, CardContent } from "@/components/ui/card"
 
-const menuItemSchema = z.object({
-  name: z.string().min(1, "Item name is required"),
-  imageFile: z.instanceof(File).optional(),
-  price: z.string().min(1, "Price is required"),
-  description: z.string().min(1, "Description is required"),
-})
-
-const menuCategorySchema = z.object({
-  category: z.string().min(1, "Category name is required"),
-  items: z.array(menuItemSchema).min(1, "At least one item is required"),
-})
 
 const restaurantSchema = z.object({
   name: z.string().min(2, "Restaurant name must be at least 2 characters"),
@@ -44,7 +31,6 @@ const restaurantSchema = z.object({
   facebook: z.string().min(1, "Facebook page name is required"),
   cuisines: z.array(z.string()).min(1, "At least one cuisine is required"),
   imageFile: z.instanceof(File).optional().refine((file) => file?.size !==0,{message: "Image file is required"}),
-  menu: z.array(menuCategorySchema).min(1, "At least one menu category is required"),
 })
 
 type RestaurantFormValues = z.infer<typeof restaurantSchema>
@@ -66,14 +52,9 @@ export default function RestaurantForm() {
       instagram: "",
       facebook: "",
       cuisines: [],
-      menu: [{ category: "", items: [{ name: "", price: "", description: "" }] }],
     },
   })
 
-  const { fields: menuFields, append: appendMenu, remove: removeMenu } = useFieldArray({
-    control: form.control,
-    name: "menu",
-  })
 
   const onSubmit: SubmitHandler<RestaurantFormValues> = async (data) => {
     setLoading(true)
@@ -259,115 +240,6 @@ export default function RestaurantForm() {
               )}
             />
           </div>
-
-          <div>
-            <Label className="text-lg font-semibold">Menu</Label>
-            {menuFields.map((field, index) => (
-              <Card key={field.id} className="mt-4">
-                <CardContent className="pt-6">
-                  <FormField
-                    control={form.control}
-                    name={`menu.${index}.category`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Category Name</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Enter category name" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <div className="mt-4">
-                    <Label>Menu Items</Label>
-                    {field.items.map((item, itemIndex) => (
-                      <div key={item.id} className="p-4 mt-2 border rounded-md">
-                        <FormField
-                          control={form.control}
-                          name={`menu.${index}.items.${itemIndex}.name`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Item Name</FormLabel>
-                              <FormControl>
-                                <Input placeholder="Enter item name" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name={`menu.${index}.items.${itemIndex}.imageFile`}
-                          render={({ field: { value, onChange, ...field } }) => (
-                            <FormItem>
-                              <FormLabel>Item Image</FormLabel>
-                              <FormControl>
-                                <Input
-                                  type="file"
-                                  accept="image/*"
-                                  onChange={(e) => onChange(e.target.files?.[0])}
-                                  {...field}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name={`menu.${index}.items.${itemIndex}.price`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Item Price</FormLabel>
-                              <FormControl>
-                                <Input placeholder="Enter item price" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name={`menu.${index}.items.${itemIndex}.description`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Item Description</FormLabel>
-                              <FormControl>
-                                <Textarea placeholder="Enter item description" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                    ))}
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      className="mt-2"
-                      onClick={() => {
-                        const items = form.getValues(`menu.${index}.items`)
-                        form.setValue(`menu.${index}.items`, [...items, { name: "", price: "", description: "" }])
-                      }}
-                    >
-                      <Plus className="w-4 h-4 mr-2" /> Add Item
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="mt-4"
-              onClick={() => appendMenu({ category: "", items: [{ name: "", price: "", description: "" }] })}
-            >
-              <Plus className="w-4 h-4 mr-2" /> Add Menu Category
-            </Button>
-          </div>
-
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? (
               <>

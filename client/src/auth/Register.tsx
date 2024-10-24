@@ -1,6 +1,6 @@
-import React, { useEffect, useState, ChangeEvent, FormEvent } from "react";
+import React, { useState, ChangeEvent, FormEvent } from "react";
 import { Link } from "react-router-dom";
-import { FaEye, FaEyeSlash, FaUpload } from "react-icons/fa";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 import toast from 'react-hot-toast';
 import { Button } from "@/components/ui/button";
 
@@ -10,7 +10,6 @@ interface FormData {
   contact: string;
   password: string;
   confirmPassword: string;
-  profileImage: File | null;
 }
 
 interface Errors {
@@ -24,26 +23,19 @@ const Register: React.FC = () => {
     contact: "",
     password: "",
     confirmPassword: "",
-    profileImage: null,
   });
 
   const [errors, setErrors] = useState<Errors>({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value, files } = e.target;
-    if (name === "profileImage" && files && files[0]) {
-      setFormData({ ...formData, [name]: files[0] });
-      setImagePreview(URL.createObjectURL(files[0]));
-    } else {
-      setFormData({
-        ...formData,
-        [name]: value,
-      });
-    }
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
     // Clear error when user starts typing
     setErrors({
       ...errors,
@@ -83,22 +75,6 @@ const Register: React.FC = () => {
     if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = "Passwords do not match";
       isValid = false;
-    }
-
-    // Image validation
-    if (!formData.profileImage) {
-      newErrors.profileImage = "Please upload a profile image";
-      isValid = false;
-    } else {
-      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
-      if (!allowedTypes.includes(formData.profileImage.type)) {
-        newErrors.profileImage = "Please upload a valid image file (JPEG, PNG, or GIF)";
-        isValid = false;
-      }
-      if (formData.profileImage.size > 5 * 1024 * 1024) { // 5MB limit
-        newErrors.profileImage = "Image size should not exceed 5MB";
-        isValid = false;
-      }
     }
 
     setErrors(newErrors);
@@ -153,14 +129,6 @@ const Register: React.FC = () => {
     setShowConfirmPassword((prevState) => !prevState);
   };
 
-  useEffect(() => {
-    return () => {
-      if (imagePreview) {
-        URL.revokeObjectURL(imagePreview);
-      }
-    };
-  }, [imagePreview]);
-
   return (
     <div className="flex items-center justify-center min-h-screen px-4 py-12 bg-gray-100 sm:px-6 lg:px-8">
        <div className="w-full max-w-md p-2 space-y-8 ">
@@ -186,7 +154,6 @@ const Register: React.FC = () => {
                 id="name"
                 name="name"
                 type="text"
-              
                 className="relative block w-full px-3 py-2 text-gray-900 placeholder-gray-500 border border-gray-300 rounded-none appearance-none rounded-t-md focus:outline-none focus:ring-green focus:border-green focus:z-10 sm:text-sm"
                 placeholder="Full Name"
                 value={formData.name}
@@ -203,7 +170,6 @@ const Register: React.FC = () => {
                 id="email"
                 name="email"
                 type="email"
-               
                 className="relative block w-full px-3 py-2 text-gray-900 placeholder-gray-500 border border-gray-300 rounded-none appearance-none focus:outline-none focus:ring-green focus:border-green focus:z-10 sm:text-sm"
                 placeholder="Email address"
                 value={formData.email}
@@ -219,7 +185,6 @@ const Register: React.FC = () => {
                 id="contact"
                 name="contact"
                 type="number"
-               
                 className="relative block w-full px-3 py-2 text-gray-900 placeholder-gray-500 border border-gray-300 rounded-none appearance-none focus:outline-none focus:ring-green focus:border-green focus:z-10 sm:text-sm"
                 placeholder="Contact"
                 value={formData.contact}
@@ -236,7 +201,6 @@ const Register: React.FC = () => {
                 id="password"
                 name="password"
                 type={showPassword ? "text" : "password"}
-                
                 className="relative block w-full px-3 py-2 text-gray-900 placeholder-gray-500 border border-gray-300 rounded-none appearance-none focus:outline-none focus:ring-green focus:border-green focus:z-10 sm:text-sm"
                 placeholder="Password"
                 value={formData.password}
@@ -261,7 +225,6 @@ const Register: React.FC = () => {
                 id="confirmPassword"
                 name="confirmPassword"
                 type={showConfirmPassword ? "text" : "password"}
-               
                 className="relative block w-full px-3 py-2 text-gray-900 placeholder-gray-500 border border-gray-300 rounded-none appearance-none rounded-b-md focus:outline-none focus:ring-green focus:border-green focus:z-10 sm:text-sm"
                 placeholder="Confirm Password"
                 value={formData.confirmPassword}
@@ -275,36 +238,6 @@ const Register: React.FC = () => {
               >
                 {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
               </button>
-            </div>
-          </div>
-
-          {/* Image Upload */}
-          <div className="relative mt-4">
-            <label htmlFor="profileImage" className="block text-sm font-medium text-gray-700">
-              Profile Image
-            </label>
-            <div className="flex items-center mt-1">
-              <span className="inline-block w-12 h-12 overflow-hidden bg-gray-100 rounded-full">
-                {imagePreview ? (
-                  <img src={imagePreview} alt="Profile Preview" className="object-cover w-full h-full" />
-                ) : (
-                  <FaUpload className="w-full h-full text-gray-300" />
-                )}
-              </span>
-              <label
-                htmlFor="profileImage"
-                className="px-3 py-2 ml-5 text-sm font-medium leading-4 text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm cursor-pointer hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green"
-              >
-                Upload
-                <input
-                  id="profileImage"
-                  name="profileImage"
-                  type="file"
-                  accept="image/*"
-                  className="sr-only"
-                  onChange={handleChange}
-                />
-              </label>
             </div>
           </div>
 
