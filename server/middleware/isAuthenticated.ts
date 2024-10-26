@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 declare global {
     namespace Express {
         interface Request {
-            userId: string;
+            id: string;
         }
     }
 }
@@ -29,9 +29,9 @@ export const isAuthenticated = (req: Request, res: Response, next: NextFunction)
             throw new Error("SECRET_KEY is not defined in environment variables");
         }
 
-        const decoded = jwt.verify(token, secretKey) as JwtPayload;
+        const decode = jwt.verify(token, secretKey) as JwtPayload;
         
-        if (!decoded || typeof decoded.userId !== 'string') {
+        if (!decode || typeof decode.userId !== 'string') {
             res.status(401).json({
                 success: false,
                 message: "Invalid token"
@@ -39,7 +39,7 @@ export const isAuthenticated = (req: Request, res: Response, next: NextFunction)
             return;
         }
 
-        req.userId = decoded.userId;
+        req.id = decode.userId;
         next();
     } catch (error) {
         if (error instanceof jwt.JsonWebTokenError) {

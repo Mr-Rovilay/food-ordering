@@ -1,136 +1,143 @@
-import React, { useState, useRef, ChangeEvent, KeyboardEvent, FormEvent } from 'react';
-import { toast } from 'react-hot-toast';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useRef, ChangeEvent, KeyboardEvent, FormEvent } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { toast } from 'sonner'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { useUserStore } from '@/store/useUserStore'
 
-const VerifyEmail: React.FC = () => {
-  const [code, setCode] = useState<string[]>(new Array(6).fill(""));
-  const [isLoading, setIsLoading] = useState(false);
-  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
-  const navigate = useNavigate();
+export default function VerifyEmail() {
+  const [code, setCode] = useState<string[]>(new Array(6).fill(""))
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([])
+  const navigate = useNavigate()
+  const { verifyEmail, loading } = useUserStore()
 
-  // Handle individual digit input change
+
   const handleChange = (element: HTMLInputElement, index: number) => {
-    if (isNaN(Number(element.value))) return; // Only allow numeric input
+    const value = element.value
+
+    if (!/^[a-zA-Z0-9]$/.test(value)) {
+      return
+    }
 
     setCode(prevCode => {
-      const newCode = [...prevCode];
-      newCode[index] = element.value;
-      return newCode;
-    });
+      const newCode = [...prevCode]
+      newCode[index] = value
+      return newCode
+    })
 
-    // Automatically move to the next input field if not the last one
-    if (element.value && index < 5) {
-      inputRefs.current[index + 1]?.focus();
+    if (value && index < 5) {
+      inputRefs.current[index + 1]?.focus()
     }
-  };
+  }
 
-  // Handle pasting code
   const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
-    e.preventDefault();
-    const pastedData = e.clipboardData.getData('text').slice(0, 6);
+    e.preventDefault()
+    const pastedData = e.clipboardData.getData('text').slice(0, 6)
 
-    if (!/^\d+$/.test(pastedData)) {
-      toast.error('Please paste only numeric digits');
-      return;
+    if (!/^[a-zA-Z0-9]+$/.test(pastedData)) {
+      toast.error('Please paste only alphanumeric characters')
+      return
     }
 
-    const newCode = [...code];
+    const newCode = [...code]
     for (let i = 0; i < pastedData.length; i++) {
-      newCode[i] = pastedData[i];
+      newCode[i] = pastedData[i]
       if (inputRefs.current[i]) {
-        inputRefs.current[i]!.value = pastedData[i];
+        inputRefs.current[i]!.value = pastedData[i]
       }
     }
-    setCode(newCode);
+    setCode(newCode)
 
-    // Focus on the next empty input or the last input if all are filled
-    const nextEmptyIndex = newCode.findIndex(digit => digit === "");
+    const nextEmptyIndex = newCode.findIndex(char => char === "")
     if (nextEmptyIndex !== -1) {
-      inputRefs.current[nextEmptyIndex]?.focus();
+      inputRefs.current[nextEmptyIndex]?.focus()
     } else {
-      inputRefs.current[5]?.focus();
+      inputRefs.current[5]?.focus()
     }
-  };
+  }
 
-  // Handle backspace key
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>, index: number) => {
     if (e.key === 'Backspace' && !code[index] && index > 0) {
-      inputRefs.current[index - 1]?.focus();
+      inputRefs.current[index - 1]?.focus()
     }
-  };
+  }
 
-  // Handle form submission
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const verificationCode = code.join("");
-
-    if (verificationCode.length === 6) {
-      setIsLoading(true);
-
-      try {
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        toast.success('Email verified successfully');
-        navigate('/success'); // Navigate to success page or dashboard
-      } catch (error) {
-        toast.error('Verification failed. Please try again.');
-      } finally {
-        setIsLoading(false);
+    e.preventDefault()
+    const verificationCode = code.join("")
+    try {
+      const result = await verifyEmail(verificationCode)
+      if (result) {
+        navigate("/");
+      } else {
+        toast.error('Verification failed. Please check your code and try again.')
       }
-    } else {
-      toast.error('Please enter a valid 6-digit code');
+    } catch (error) {
+      console.error("Verification failed:", error)
+      toast.error('An error occurred during verification. Please try again.')
     }
-  };
+  }
+
+  const handleResendCode = async () => {
+    console.log("Resend code clicked")
+    toast.promise(
+      new Promise(resolve => setTimeout(resolve, 2000)), // Simulating API call
+      {
+        loading: 'Resending code...',
+        success: 'Verification code resent successfully',
+        error: 'Failed to resend code. Please try again.',
+      }
+    )
+  }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50">
-      <div className="w-full max-w-md p-8">
-        <h2 className="mb-6 text-2xl font-bold text-center">Verify Your Email</h2>
-        <p className="mb-4 text-center text-gray-600">
-          We've sent a 6-digit code to your email. Enter it below to verify.
+    <div className="flex items-center justify-center min-h-screen bg-background">
+      <div className="w-full max-w-md p-8 space-y-8 bg-card rounded-lg shadow-md">
+        <h2 className="text-3xl font-bold text-center text-foreground">Verify Your Email</h2>
+        <p className="text-center text-muted-foreground">
+          We've sent a 6-character code to your email. Enter it below to verify your account.
         </p>
 
-        <form onSubmit={handleSubmit} className="flex flex-col items-center">
-          <div className="flex mb-6 space-x-2">
-            {code.map((digit, index) => (
-              <input
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="flex justify-center space-x-2">
+            {code.map((char, index) => (
+              <Input
                 key={index}
                 ref={el => inputRefs.current[index] = el}
                 type="text"
                 maxLength={1}
-                value={digit}
+                value={char}
                 onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e.target, index)}
                 onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => handleKeyDown(e, index)}
                 onPaste={handlePaste}
-                className="w-12 h-12 text-xl text-center transition border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
+                className="w-12 h-12 text-xl text-center"
+                aria-label={`Verification code digit ${index + 1}`}
               />
             ))}
           </div>
 
-          <button
+          <Button
             type="submit"
-            disabled={isLoading}
-            className="w-full px-4 py-2 font-bold text-white transition rounded bg-green hover:bg-hoverGreen focus:outline-none focus:ring-2 focus:ring-green focus:ring-offset-2 disabled:opacity-50"
+            disabled={loading || code.some(char => char === "")}
+            className="w-full"
           >
-            {isLoading ? 'Verifying...' : 'Verify Email'}
-          </button>
+            {loading ? 'Verifying...' : 'Verify Email'}
+          </Button>
         </form>
 
-        <div className="mt-4 text-center">
-          <p className="text-gray-500">
+        <div className="text-center">
+          <p className="text-muted-foreground">
             Didn't receive a code?{' '}
-            <button
-              type="button"
-              onClick={() => toast('Resending code...', { icon: '📨' })}
-              className="font-semibold text-secondary hover:text-secondary-dark"
+            <Button
+              variant="link"
+              onClick={handleResendCode}
+              className="p-0 font-semibold"
             >
               Resend
-            </button>
+            </Button>
           </p>
         </div>
       </div>
     </div>
-  );
-};
-
-export default VerifyEmail;
+  )
+}

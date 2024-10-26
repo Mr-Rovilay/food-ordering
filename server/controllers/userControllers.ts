@@ -195,7 +195,7 @@ export const resetPassword = async (req: Request, res: Response, next: NextFunct
 
 export const checkAuth = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const userId = req.userId; // Changed from req.id to req.userId
+      const userId = req.id; // Changed from req.id to req.userId
       const user = await User.findById(userId).select("-password");
       if (!user) {
         res.status(404).json({
@@ -215,7 +215,7 @@ export const checkAuth = async (req: Request, res: Response, next: NextFunction)
   
   export const updateProfile = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const userId = req.userId; // Changed from req.id to req.userId
+      const userId = req.id; // Changed from req.id to req.userId
       const { fullname, email, address, city, country, bio, profilePicture } = req.body;
       
       let cloudResponse;

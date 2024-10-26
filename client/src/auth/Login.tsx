@@ -1,137 +1,139 @@
-import React, { useState, ChangeEvent, FormEvent } from 'react';
-import { Link } from 'react-router-dom';
-import { FaEye, FaEyeSlash } from 'react-icons/fa';
-import toast from 'react-hot-toast';
-import { Button } from '@/components/ui/button';
+import { useState, ChangeEvent, FormEvent } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { Eye, EyeOff } from 'lucide-react'
+import { toast } from "sonner"
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { LoginInputState, userLoginSchema } from '@/schema/userSchema'
+import { useUserStore } from '@/store/useUserStore'
 
-interface FormData {
-  email: string;
-  password: string;
-}
-
-const Login: React.FC = () => {
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [formData, setFormData] = useState<FormData>({
-    email: '',
-    password: '',
-  });
-  const [showPassword, setShowPassword] = useState<boolean>(false);
+export default function Login() {
+  const [input, setInput] = useState<LoginInputState>({
+    email: "",
+    password: "",
+  })
+  const [errors, setErrors] = useState<Partial<LoginInputState>>({})
+  const [showPassword, setShowPassword] = useState(false)
+  const { loading, login } = useUserStore()
+  const navigate = useNavigate()
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
-
-  const validateForm = (): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    if (!emailRegex.test(formData.email)) {
-      toast.error('Please enter a valid email address.');
-      return false;
+    const { name, value } = e.target
+    setInput(prev => ({ ...prev, [name]: value }))
+    // Clear error when user starts typing
+    if (errors[name as keyof LoginInputState]) {
+      setErrors(prev => ({ ...prev, [name]: undefined }))
     }
-
-    if (formData.password.length < 6) {
-      toast.error('Password must be at least 6 characters long');
-      return false;
-    }
-    
-
-    return true;
-  };
+  }
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!validateForm()) return;
+    e.preventDefault()
+    
+    const result = userLoginSchema.safeParse(input)
+    if (!result.success) {
+      const fieldErrors = result.error.formErrors.fieldErrors
+      setErrors(Object.fromEntries(Object.entries(fieldErrors).map(([key, value]) => [key, value?.[0]])))
+      // Show first error message in toast
+      const firstError = Object.values(fieldErrors)[0]?.[0]
+      if (firstError) {
+        toast.error(firstError)
+      }
+      return
+    }
 
-    setIsLoading(true);
-    // Implement your login logic here
-    // After login attempt, set isLoading back to false
-    setIsLoading(false);
-  };
+    try {
+      await login(input)
+      navigate("/")
+    } catch (error) {
+      console.error(error)
+      toast.error("Login failed. Please check your credentials and try again.")
+    }
+  }
 
   const togglePasswordVisibility = () => {
-    setShowPassword((prevState) => !prevState);
-  };
+    setShowPassword(prev => !prev)
+  }
 
   return (
-    <div className="flex items-center justify-center min-h-screen px-4 py-12 bg-gray-100 sm:px-6 lg:px-8">
-     <div className="w-full max-w-md p-2 space-y-8 ">
+    <div className="flex items-center justify-center min-h-screen px-4 py-12 bg-background sm:px-6 lg:px-8">
+      <div className="w-full max-w-md space-y-8">
         <div>
-          <h2 className="mt-6 text-3xl font-extrabold text-center text-gray-900">
+          <h2 className="mt-6 text-3xl font-extrabold text-center text-foreground">
             Login to your Account
           </h2>
-          <p className="mt-2 text-sm text-center text-gray-600">
+          <p className="mt-2 text-sm text-center text-muted-foreground">
             Or{' '}
-            <Link to="/register" className="font-medium text-green hover:text-hoverGreen">
+            <Link to="/register" className="font-medium text-primary hover:text-primary/80">
               Create an Account
             </Link>
           </p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="-space-y-px rounded-md shadow-sm">
-            <div>
-              <label htmlFor="email" className="sr-only">
-                Email address
-              </label>
-              <input
+          <div className="space-y-4">
+          <div>
+              <Label htmlFor="email">Email address</Label>
+              <Input
                 id="email"
                 name="email"
-                type="email"
-                autoComplete="email"
-              
-                className="relative block w-full px-3 py-2 text-gray-900 placeholder-gray-500 border border-gray-300 rounded-none appearance-none rounded-t-md focus:outline-none focus:ring-green focus:border-green focus:z-10 sm:text-sm"
+                type="email"      
                 placeholder="Email address"
-                value={formData.email}
-                onChange={handleChange}
+                value={input.email}
+                    onChange={handleChange}
+                className={errors.email ? "border-destructive" : ""}
+                aria-invalid={!!errors.email}
+                aria-describedby={errors.email ? "email-error" : undefined}
               />
+              {errors.email && (
+                <p id="email-error" className="mt-1 text-xs text-destructive">
+                  {errors.email}
+                </p>
+              )}
             </div>
             <div className="relative">
-              <label htmlFor="password" className="sr-only">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type={showPassword ? 'text' : 'password'}
-                autoComplete="current-password"
-                
-                className="relative block w-full px-3 py-2 text-gray-900 placeholder-gray-500 border border-gray-300 rounded-none appearance-none rounded-b-md focus:outline-none focus:ring-green focus:border-green focus:z-10 sm:text-sm"
-                placeholder="Password"
-                value={formData.password}
-                onChange={handleChange}
-              />
+              <Label htmlFor="password">Password</Label>
+              <Input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Password (min 6 characters)"
+                  value={input.password}
+                  onChange={handleChange}
+                  className={errors.password ? "border-destructive pr-10" : "pr-10"}
+                  aria-invalid={!!errors.password}
+                  aria-describedby={errors.password ? "password-error" : undefined}
+                />
               <button
                 type="button"
-                className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500"
+                className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground top-6"
                 onClick={togglePasswordVisibility}
+                tabIndex={-1}
               >
-                {showPassword ? <FaEyeSlash /> : <FaEye />}
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
+              {errors.password && (
+                <p className="mt-1 text-xs text-destructive">{errors.password}</p>
+              )}
             </div>
           </div>
+          
           <div className="flex items-center justify-between">
             <div className="text-sm">
-              <Link to="/forgot-password" className="font-medium hover:text-green">
+              <Link to="/forgot-password" className="font-medium text-primary hover:text-primary/80">
                 Forgot your password?
               </Link>
             </div>
           </div>
-          <div>
-            <Button
-              type="submit"
-              className="relative flex justify-center w-full px-4 py-2 text-sm font-medium text-white border border-transparent rounded-md group bg-green hover:bg-hoverGreen focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green"
-              disabled={isLoading}
-            >
-              {isLoading ? 'Logging...' : 'Login'}
-            </Button>
-          </div>
+
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={loading}
+          >
+            {loading ? 'Signing in...' : 'Sign in'}
+          </Button>
         </form>
       </div>
     </div>
-  );
-};
-
-export default Login;
+  )
+}

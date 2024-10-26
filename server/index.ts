@@ -5,6 +5,9 @@ import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import userRoute from "./routes/userRoute";
+import restaurantRoute from "./routes/restaurantRoute";
+import menuRoute from "./routes/menuRoute";
+import orderRoute from "./routes/orderRoute";
 
 dotenv.config();
 
@@ -18,13 +21,16 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
-    origin: "*",
+    origin: "http://localhost:5173",
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true
   }));
 
 
   app.use("/api/user", userRoute);
+  app.use("/api/restaurant", restaurantRoute);
+  app.use("/api/menu", menuRoute);
+app.use("/api/order", orderRoute);
 
 
   connectDB().then(() => {
