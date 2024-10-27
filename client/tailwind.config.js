@@ -18,8 +18,8 @@ module.exports = {
 	  },
 	  extend: {
 		colors: {
-		  green:"var(--button)",
-		  hoverGreen:"var(--hoverButtonColor)",
+		  green: "var(--button)",
+		  hoverGreen: "var(--hoverButtonColor)",
 		  border: "hsl(var(--border))",
 		  input: "hsl(var(--input))",
 		  ring: "hsl(var(--ring))",
@@ -68,12 +68,73 @@ module.exports = {
 			from: { height: "var(--radix-accordion-content-height)" },
 			to: { height: "0" },
 		  },
+		  blob: {
+			"0%": {
+			  transform: "translate(0px, 0px) scale(1)",
+			},
+			"33%": {
+			  transform: "translate(30px, -50px) scale(1.1)",
+			},
+			"66%": {
+			  transform: "translate(-20px, 20px) scale(0.9)",
+			},
+			"100%": {
+			  transform: "translate(0px, 0px) scale(1)",
+			},
+		  },
+		  float: {
+			"0%, 100%": {
+			  transform: "translateY(0)",
+			},
+			"50%": {
+			  transform: "translateY(-10px)",
+			},
+		  },
+		  slideUp: {
+			from: {
+			  transform: "translateY(100%)",
+			  opacity: "0",
+			},
+			to: {
+			  transform: "translateY(0)",
+			  opacity: "1",
+			},
+		  },
+		  fadeIn: {
+			from: {
+			  opacity: "0",
+			},
+			to: {
+			  opacity: "1",
+			},
+		  },
 		},
 		animation: {
 		  "accordion-down": "accordion-down 0.2s ease-out",
 		  "accordion-up": "accordion-up 0.2s ease-out",
+		  blob: "blob 7s infinite",
+		  "blob-spin": "blob 7s infinite, spin 20s linear infinite",
+		  float: "float 6s ease-in-out infinite",
+		  "slide-up": "slideUp 0.5s ease-out",
+		  "fade-in": "fadeIn 0.5s ease-out",
+		},
+		transitionDelay: {
+		  "2000": "2000ms",
+		  "4000": "4000ms",
 		},
 	  },
 	},
-	plugins: [require("tailwindcss-animate")],
-  }
+	plugins: [
+	  require("tailwindcss-animate"),
+	  function({ addUtilities }) {
+		addUtilities({
+		  ".animation-delay-2000": {
+			"animation-delay": "2s",
+		  },
+		  ".animation-delay-4000": {
+			"animation-delay": "4s",
+		  },
+		});
+	  },
+	],
+  };

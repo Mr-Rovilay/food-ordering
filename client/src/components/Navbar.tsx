@@ -1,5 +1,16 @@
 import { Link } from "react-router-dom";
-import { HandPlatter, Loader2, Menu, Moon, PackageCheck, ShoppingCart, SquareMenu, Sun, User, UtensilsCrossed } from "lucide-react";
+import {
+  HandPlatter,
+  Loader2,
+  Menu,
+  Moon,
+  PackageCheck,
+  ShoppingCart,
+  SquareMenu,
+  Sun,
+  User,
+  UtensilsCrossed,
+} from "lucide-react";
 import {
   Menubar,
   MenubarContent,
@@ -19,167 +30,210 @@ import {
   Sheet,
   SheetClose,
   SheetContent,
-  SheetDescription,
   SheetFooter,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@/components/ui/sheet"
+} from "@/components/ui/sheet";
 import { Separator } from "./ui/separator";
+import { useUserStore } from "@/store/useUserStore";
 
 const Navbar = () => {
-  const admin = true;
-  const loading = false;
+  const { user, loading,logout } = useUserStore();
+
   return (
-    <div className="sticky top-0 z-50 border border-b-1 max-padd-container">
-      <div className="flex items-center justify-between h-16">
-        <Link to={"/"}>
-          <h1 className="text-xl font-bold md:font-extrabold">FoodPalace</h1>
-        </Link>
-        <div className="items-center hidden gap-10 md:flex">
-          <div className="items-center hidden gap-6 md:flex">
-          <Link to={"/"} className="text-sm font-medium transition-colors">Home</Link>
-            <Link to={"/profile"} className="text-sm font-medium transition-colors">Profile</Link>
-            <Link to={"/order/status"} className="text-sm font-medium transition-colors">Order</Link>
-      
-          {admin && (
-            <Menubar >
-              <MenubarMenu >
-                <MenubarTrigger className="text-sm cursor-pointer">Dashboard</MenubarTrigger>
-                <MenubarContent >
-                  <Link to={"/admin/restaurant"}>
-                    <MenubarItem className="text-sm cursor-pointer">Restaurant</MenubarItem>
-                  </Link>
-                  <Link to={"/admin/menu"}>
-                    <MenubarItem className="text-sm cursor-pointer">Menu</MenubarItem>
-                  </Link>
-                  <Link to={"/admin/orders"}>
-                    <MenubarItem className="text-sm cursor-pointer">Orders</MenubarItem>
-                  </Link>
-                </MenubarContent>
-              </MenubarMenu>
-            </Menubar>
-          )}
-        </div>
-        <div className="flex items-center gap-4">
-          <div className="">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                  <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-                  <span className="sr-only">Toggle theme</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem>Light</DropdownMenuItem>
-                <DropdownMenuItem>Dark</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-          <Link to={"/cart"} className="relative cursor-pointer">
-            <ShoppingCart />
-            <Button
-              size={"icon"}
-              className="absolute w-4 h-4 text-xs bg-red-500 rounded-full -inset-y-3 left-2 hover:bg-red-500"
-            >
-              5
-            </Button>
+    <nav className="fixed top-0 z-50 w-full border-b backdrop-blur-sm bg-white/75 dark:bg-slate-950/75">
+      <div className="max-padd-container sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo */}
+          <Link to="/" className="flex items-center space-x-2">
+            <h2 className="text-xl font-bold text-transparent md:text-2xl md:font-extrabold bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-400 bg-clip-text">
+              Food<span className="text-green">Palace</span>
+            </h2>
           </Link>
-          <div className="">
-            <Avatar>
-              <AvatarImage />
-              <AvatarFallback>CN</AvatarFallback>
-            </Avatar>
+
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex md:items-center md:space-x-8">
+            <div className="flex items-center space-x-6">
+              <NavLink to="/">Home</NavLink>
+              <NavLink to="/profile">Profile</NavLink>
+              <NavLink to="/order/status">Order</NavLink>
+
+              {user?.admin && (
+                <Menubar className="bg-transparent border-none">
+                  <MenubarMenu>
+                    <MenubarTrigger className="text-sm font-medium transition-colors cursor-pointer hover:text-green">
+                      Dashboard
+                    </MenubarTrigger>
+                    <MenubarContent className="min-w-[140px]">
+                      <Link to="/admin/restaurant">
+                        <MenubarItem className="text-sm cursor-pointer">
+                          Restaurant
+                        </MenubarItem>
+                      </Link>
+                      <Link to="/admin/menu">
+                        <MenubarItem className="text-sm cursor-pointer">
+                          Menu
+                        </MenubarItem>
+                      </Link>
+                      <Link to="/admin/orders">
+                        <MenubarItem className="text-sm cursor-pointer">
+                          Orders
+                        </MenubarItem>
+                      </Link>
+                    </MenubarContent>
+                  </MenubarMenu>
+                </Menubar>
+              )}
+            </div>
+
+            {/* Right side actions */}
+            <div className="flex items-center space-x-4">
+              <ThemeToggle />
+              
+              <Link to="/cart" className="relative p-2 transition-colors rounded-full hover:bg-slate-100 dark:hover:bg-slate-800">
+                <ShoppingCart className="w-5 h-5" />
+                <span className="absolute flex items-center justify-center w-5 h-5 text-xs text-white bg-red-500 rounded-full -top-1 -right-1">
+                  5
+                </span>
+              </Link>
+
+              <Avatar className="w-8 h-8 transition transform hover:scale-105">
+                <AvatarImage />
+                <AvatarFallback className="bg-slate-200 dark:bg-slate-700">CN</AvatarFallback>
+              </Avatar>
+
+              {loading ? (
+                <Button className="bg-green hover:bg-hoverGreen">
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Please wait
+                </Button>
+              ) : (
+                <Button onClick={logout} className="text-sm font-medium">
+                  Logout
+                </Button>
+              )}
+            </div>
           </div>
-          <div className="">
-            {loading ? (
-              <Button className="bg-green hover:bg-hoverGreen">
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Please wait
-              </Button>
-            ) : (
-              <Button className="text-sm bg-green hover:bg-hoverGreen">Logout</Button>
-            )}
+
+          {/* Mobile Navigation */}
+          <div className="md:hidden">
+            <MobileNav />
           </div>
-        </div>
-        </div>
-        <div className="md:hidden lg:hidden">
-          {/* mobile responsiveness */}
-        <MobileNav />
         </div>
       </div>
-    </div>
+    </nav>
   );
 };
 
-export default Navbar;
-const MobileNav  =() => {
+// Navigation Link Component
+const NavLink = ({ to, children }) => (
+  <Link
+    to={to}
+    className="text-sm font-medium transition-colors text-slate-700 dark:text-slate-200 hover:text-green dark:hover:text-green"
+  >
+    {children}
+  </Link>
+);
+
+// Theme Toggle Component
+const ThemeToggle = () => (
+  <DropdownMenu>
+    <DropdownMenuTrigger asChild>
+      <Button variant="outline" size="icon" className="bg-transparent border-none hover:bg-slate-100 dark:hover:bg-slate-800">
+        <Sun className="w-5 h-5 transition-transform scale-100 rotate-0 dark:-rotate-90 dark:scale-0" />
+        <Moon className="absolute w-5 h-5 transition-transform scale-0 rotate-90 dark:rotate-0 dark:scale-100" />
+        <span className="sr-only">Toggle theme</span>
+      </Button>
+    </DropdownMenuTrigger>
+    <DropdownMenuContent align="end" className="min-w-[100px]">
+      <DropdownMenuItem className="cursor-pointer">Light</DropdownMenuItem>
+      <DropdownMenuItem className="cursor-pointer">Dark</DropdownMenuItem>
+    </DropdownMenuContent>
+  </DropdownMenu>
+);
+
+// Mobile Navigation Component
+const MobileNav = () => {
+  const { user } = useUserStore();
+
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button size={"icon"} variant="outline" className="text-black bg-gray-200 hover:bg-gray-500">
-          <Menu size={"16"}/>
+        <Button
+          size="icon"
+          variant="outline"
+          className="bg-transparent border-none hover:bg-slate-100 dark:hover:bg-slate-800"
+        >
+          <Menu className="w-5 h-5" />
         </Button>
       </SheetTrigger>
-      <SheetContent className="flex flex-col">
-        <SheetHeader className="flex flex-row items-center justify-between mt-2">
-          <SheetTitle>FoodPalace</SheetTitle>
-          <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                  <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-                  <span className="sr-only">Toggle theme</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem>Light</DropdownMenuItem>
-                <DropdownMenuItem>Dark</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+      <SheetContent className="w-[300px]">
+        <SheetHeader className="space-y-4">
+          <div className="flex items-center justify-between">
+            <SheetTitle className="text-xl font-bold">FoodPalace</SheetTitle>
+            <ThemeToggle />
+          </div>
+          <Separator />
         </SheetHeader>
-        <Separator className="my-2"/>
-        <SheetDescription className="flex-1">
-          <Link to={"/profile"} className="flex items-center gap-4 px-3 py-2 font-medium rounded-lg cursor-pointer hover:bg-gray-200 hover:text-gray-900">
-          <User/>
-          <span>Profile</span>
-          </Link>
-          <Link to={"/order/status"} className="flex items-center gap-4 px-3 py-2 font-medium rounded-lg cursor-pointer hover:bg-gray-200 hover:text-gray-900">
-          <HandPlatter/>
-          <span>Order</span>
-          </Link>
-          <Link to={"/cart"} className="flex items-center gap-4 px-3 py-2 font-medium rounded-lg cursor-pointer hover:bg-gray-200 hover:text-gray-900">
-          <ShoppingCart/>
-          <span>Cart (0)</span>
-          </Link>
-          <Link to={"/menu"} className="flex items-center gap-4 px-3 py-2 font-medium rounded-lg cursor-pointer hover:bg-gray-200 hover:text-gray-900">
-          <SquareMenu/>
-          <span>Menu</span>
-          </Link>
-          <Link to={"/admin/restaurant"} className="flex items-center gap-4 px-3 py-2 font-medium rounded-lg cursor-pointer hover:bg-gray-200 hover:text-gray-900">
-          <UtensilsCrossed/>
-          <span>Restaurant</span>
-          </Link>
-          <Link to={"/admin/orders"} className="flex items-center gap-4 px-3 py-2 font-medium rounded-lg cursor-pointer hover:bg-gray-200 hover:text-gray-900">
-          <PackageCheck/>
-          <span>Restaurant Orders</span>
-          </Link>
-        </SheetDescription>
-        <SheetFooter className="flex flex-col gap-2">     
-              <div className="flex flex-row items-center gap-2">
-                <Avatar>
-                  <AvatarImage/>
-                  <AvatarFallback>CN</AvatarFallback>
-                </Avatar>
-                <h1 className="font-bold">Ayodeji</h1>
-              </div>
-            
-              <SheetClose asChild>
-              <Button type="submit" className="bg-green hover:bg-hoverGreen">Logout</Button>
-            </SheetClose> 
+
+        <div className="flex flex-col mt-6 space-y-2">
+          <MobileNavLink to="/profile" icon={<User className="w-5 h-5" />}>
+            Profile
+          </MobileNavLink>
+          <MobileNavLink to="/order/status" icon={<HandPlatter className="w-5 h-5" />}>
+            Order
+          </MobileNavLink>
+          <MobileNavLink to="/cart" icon={<ShoppingCart className="w-5 h-5" />}>
+            Cart (0)
+          </MobileNavLink>
+
+          {user?.admin && (
+            <>
+              <Separator className="my-2" />
+              <MobileNavLink to="/admin/menu" icon={<SquareMenu className="w-5 h-5" />}>
+                Menu
+              </MobileNavLink>
+              <MobileNavLink to="/admin/restaurant" icon={<UtensilsCrossed className="w-5 h-5" />}>
+                Restaurant
+              </MobileNavLink>
+              <MobileNavLink to="/admin/orders" icon={<PackageCheck className="w-5 h-5" />}>
+                Restaurant Orders
+              </MobileNavLink>
+            </>
+          )}
+        </div>
+
+        <SheetFooter className="absolute bottom-0 left-0 right-0 p-6 border-t">
+          <div className="flex flex-col w-full space-y-4">
+            <div className="flex items-center space-x-3">
+              <Avatar className="w-10 h-10">
+                <AvatarImage />
+                <AvatarFallback className="bg-slate-200 dark:bg-slate-700">CN</AvatarFallback>
+              </Avatar>
+              <h1 className="text-lg font-bold">Ayodeji</h1>
+            </div>
+            <SheetClose asChild>
+              <Button className="w-full bg-green hover:bg-hoverGreen">
+                Logout
+              </Button>
+            </SheetClose>
+          </div>
         </SheetFooter>
       </SheetContent>
     </Sheet>
-  )   
-}
+  );
+};
+
+// Mobile Navigation Link Component
+const MobileNavLink = ({ to, icon, children }) => (
+  <Link
+    to={to}
+    className="flex items-center px-4 py-3 space-x-4 text-sm font-medium transition-colors rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+  >
+    {icon}
+    <span>{children}</span>
+  </Link>
+);
+
+export default Navbar;

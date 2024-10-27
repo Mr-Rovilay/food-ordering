@@ -74,7 +74,7 @@ const Testimonials: React.FC = () => {
 
   return (
     <section className="py-16 bg-gray-100">
-      <div className="container px-4 mx-auto sm:px-6 lg:px-8">
+      <div className="max-padd-container">
       <h2 className="relative inline-block mb-12 text-xl font-bold text-center text-gray-800">
           What Our Customers Say
           <span className="absolute bottom-0 left-0 w-full h-1 transform -translate-y-2 bg-gradient-to-r from-green via-green to-green"></span>

@@ -12,6 +12,7 @@ import {
   TableRow,
 } from "./ui/table"
 import CheckoutConfirmPage from "@/pages/CheckoutConfirmPage"
+import { useCartStore } from "@/store/useCartStore"
 
 interface CartItem {
   _id: string
@@ -27,28 +28,10 @@ const initialCart: CartItem[] = [
 ]
 
 export default function Cart() {
-  const [cart, setCart] = useState<CartItem[]>(initialCart)
   const [open, setOpen] = useState<boolean>(false)
+  const {cart, incrementQuantity,decrementQuantity,clearCart, removeFromTheCart  }  = useCartStore()
 
-  const incrementQuantity = (id: string) => {
-    setCart(cart.map(item => 
-      item._id === id ? { ...item, quantity: item.quantity + 1 } : item
-    ))
-  }
 
-  const decrementQuantity = (id: string) => {
-    setCart(cart.map(item => 
-      item._id === id && item.quantity > 1 ? { ...item, quantity: item.quantity - 1 } : item
-    ))
-  }
-
-  const removeItem = (id: string) => {
-    setCart(cart.filter(item => item._id !== id))
-  }
-
-  const clearCart = () => {
-    setCart([])
-  }
 
   const totalAmount = cart.reduce((acc, item) => acc + item.price * item.quantity, 0)
 
@@ -105,7 +88,7 @@ export default function Cart() {
                 <Button
                   size="sm"
                   variant="destructive"
-                  onClick={() => removeItem(item._id)}
+                  onClick={() =>  removeFromTheCart(item._id)}
                 >
                   <X className="w-4 h-4" />
                   <span className="sr-only">Remove</span>

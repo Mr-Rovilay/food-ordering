@@ -1,61 +1,144 @@
-import React from 'react';
-import { Route, Routes, useLocation } from "react-router-dom";
-import { Toaster } from "react-hot-toast";
 import Login from "./auth/Login";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import Cart from "./components/Cart";
+import Restaurant from "./admin/Restaurant";
+import AddMenu from "./admin/AddMenu";
+import Orders from "./admin/Orders";
+import Success from "./components/Success";
+import { useUserStore } from "./store/useUserStore";
+import { Navigate } from "react-router-dom";
+import { useEffect } from "react";
+import Loading from "./components/Loading";
+import { useThemeStore } from "./store/useThemeStore";
 import Register from "./auth/Register";
+import MainLayout from "./layout/MainLayout";
+import Profile from "./components/Profile";
+import SearchPage from "./pages/SearchPage";
+import RestaurantDetail from "./pages/RestaurantDetail";
 import ForgotPassword from "./auth/ForgotPassword";
 import ResetPassword from "./auth/ResetPassword";
+import VerifyEmail from "./auth/verifyEmail";
 import HomePage from "./pages/HomePage";
-import Navbar from "./components/Navbar";
-import Profile from "./components/Profile";
-import PageNotFound from "./components/PageNotFound";
-import SearchPage from "./pages/SearchPage";
-import VerifyEmail from './auth/verifyEmail';
-import RestaurantDetail from './pages/RestaurantDetail';
-import Cart from './components/Cart';
-import Restaurant from './admin/Restaurant';
-import AddMenu from './admin/AddMenu';
-import Orders from './admin/Orders';
-import Success from './components/Success';
 
+const ProtectedRoutes = ({ children }: { children: React.ReactNode }) => {
+  const { isAuthenticated, user } = useUserStore();
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
 
-const App: React.FC = () => {
-  const location = useLocation();
-
-  // Conditionally show Navbar on specified routes
-  const showNavbar = () => {
-    const navbarRoutes = ['/', '/profile', '/search'];
-    return navbarRoutes.some(route => location.pathname.startsWith(route)) || location.pathname === '*';
-  };
-
-  return (
-    <>
-      <Toaster />
-      {/* <div className="bg-[#f9f9f9] text-[#404040]"> */}
-
-      {showNavbar() && <Navbar />}
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/search/:text" element={<SearchPage />} />
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/order/status" element={<Success />} />
-        {/* admin */}
-        <Route path="/restaurant/:id" element={<RestaurantDetail />} />
-        <Route path="/admin/restaurant" element={<Restaurant />} />
-        <Route path="/admin/menu" element={<AddMenu />} />
-        <Route path="/admin/orders" element={<Orders />} />
-
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/verify-email" element={<VerifyEmail />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="*" element={<PageNotFound />} />
-      </Routes>
-      {/* </div> */}
-    </>
-  );
+  if (!user?.isVerified) {
+    return <Navigate to="/verify-email" replace />;
+  }
+  return children;
 };
+
+const AuthenticatedUser = ({ children }: { children: React.ReactNode }) => {
+  const { isAuthenticated, user } = useUserStore();
+  if(isAuthenticated && user?.isVerified){
+    return <Navigate to="/" replace/>
+  }
+  return children;
+};
+
+const AdminRoute = ({children}:{children:React.ReactNode}) => {
+  const {user, isAuthenticated} = useUserStore();
+  if(!isAuthenticated){
+    return <Navigate to="/login" replace/>
+  }
+  if(!user?.admin){
+    return <Navigate to="/" replace/>
+  }
+
+  return children;
+}
+
+const appRouter = createBrowserRouter([
+  {
+    path: "/",
+    element: (
+      <ProtectedRoutes>
+        <MainLayout />
+      </ProtectedRoutes>
+    ),
+    children: [
+      {
+        path: "/",
+        element: <HomePage />,
+      },
+      {
+        path: "/profile",
+        element: <Profile />,
+      },
+      {
+        path: "/search/:text",
+        element: <SearchPage />,
+      },
+      {
+        path: "/restaurant/:id",
+        element: <RestaurantDetail />,
+      },
+      {
+        path: "/cart",
+        element: <Cart />,
+      },
+      {
+        path: "/order/status",
+        element: <Success />,
+      },
+      // admin services start from here
+      {
+        path: "/admin/restaurant",
+        element:<AdminRoute><Restaurant /></AdminRoute>,
+      },
+      {
+        path: "/admin/menu",
+        element:<AdminRoute><AddMenu /></AdminRoute>,
+      },
+      {
+        path: "/admin/orders",
+        element:<AdminRoute><Orders /></AdminRoute>,
+      },
+    ],
+  },
+  {
+    path: "/login",
+    element:<AuthenticatedUser><Login /></AuthenticatedUser>,
+  },
+  {
+    path: "/register",
+    element:<AuthenticatedUser><Register /></AuthenticatedUser> ,
+  },
+  {
+    path: "/forgot-password",
+    element: <AuthenticatedUser><ForgotPassword /></AuthenticatedUser>,
+  },
+  {
+    path: "/reset-password",
+    element: <ResetPassword />,
+  },
+  {
+    path: "/verify-email",
+    element: <VerifyEmail />,
+  },
+]);
+
+function App() {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const initializeTheme = useThemeStore((state:any) => state.initializeTheme);
+  const {checkAuthentication, isCheckingAuth} = useUserStore();
+  // checking auth every time when page is loaded
+  useEffect(()=>{
+    checkAuthentication();
+    initializeTheme();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[checkAuthentication])
+
+  if(isCheckingAuth) return <Loading/>
+  return (
+    <main>
+      <RouterProvider router={appRouter}></RouterProvider>
+    </main>
+  );
+}
 
 export default App;
