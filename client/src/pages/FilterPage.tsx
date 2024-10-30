@@ -1,9 +1,10 @@
-import { useState } from 'react';
+
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Filter } from "lucide-react";
+import { useRestaurantStore } from '@/store/useRestaurantStore';
 
 export type FilterOptionsState = {
   id: string;
@@ -12,25 +13,14 @@ export type FilterOptionsState = {
 };
 
 const filterOptions: FilterOptionsState[] = [
-  { id: "burger", label: "Burger", count: 12 },
-  { id: "thali", label: "Thali", count: 8 },
-  { id: "biryani", label: "Biryani", count: 15 },
-  { id: "momos", label: "Momos", count: 6 },
+  { id: "eba", label: "eba"},
+  { id: "rice", label: "rice"},
 ];
 
 const FilterPage = () => {
-  const [appliedFilters, setAppliedFilters] = useState<string[]>([]);
-
-  const handleFilterChange = (label: string) => {
-    setAppliedFilters(prev => 
-      prev.includes(label)
-        ? prev.filter(item => item !== label)
-        : [...prev, label]
-    );
-  };
-
-  const handleReset = () => {
-    setAppliedFilters([]);
+  const { setAppliedFilter, appliedFilter, resetAppliedFilter } = useRestaurantStore();
+  const appliedFilterHandler = (value: string) => {
+    setAppliedFilter(value);
   };
 
   return (
@@ -44,9 +34,9 @@ const FilterPage = () => {
           <Button 
             variant="ghost" 
             size="sm"
-            onClick={handleReset}
+            onClick={resetAppliedFilter}
             className="text-gray-500 hover:text-gray-700"
-            disabled={appliedFilters.length === 0}
+            disabled={appliedFilter.length === 0}
           >
             Reset
           </Button>
@@ -61,8 +51,9 @@ const FilterPage = () => {
               <div className="flex items-center space-x-3">
                 <Checkbox
                   id={option.id}
-                  checked={appliedFilters.includes(option.label)}
-                  onCheckedChange={() => handleFilterChange(option.label)}
+                  checked={appliedFilter.includes(option.label)}
+                  onClick={() => appliedFilterHandler(option.label)}
+      
                   className="data-[state=checked]:bg-blue-600"
                 />
                 <Label 
@@ -81,10 +72,10 @@ const FilterPage = () => {
           ))}
         </div>
 
-        {appliedFilters.length > 0 && (
+        {appliedFilter.length > 0 && (
           <div className="pt-4 border-t">
             <p className="text-sm text-gray-600">
-              {appliedFilters.length} filter{appliedFilters.length > 1 ? 's' : ''} applied
+              {appliedFilter.length} filter{appliedFilter.length > 1 ? 's' : ''} applied
             </p>
           </div>
         )}

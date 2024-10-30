@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -32,75 +31,61 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import EditMenu from "./EditMenu";
+import { menuSchema } from "@/schema/menuSchema";
+import { useMenuStore } from "@/store/useMenuStore";
+import { useRestaurantStore } from "@/store/useRestaurantStore";
+import { MenuItem } from "@/types/restaurantType";
 
-const menuFormSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  description: z.string().min(10, "Description must be at least 10 characters"),
-  price: z.number().min(0, "Price must be a positive number"),
-  category: z.string().min(1, "Category is required"),
-  image: z.instanceof(File).optional(),
-});
 
-type MenuFormSchema = z.infer<typeof menuFormSchema>;
+const categories = ["Appetizer", "Main Course", "Dessert", "Swallows", "Drinks", "Rice Dishes", "Soups", "Stews", "Grilled"] as const;
 
-interface Menu extends MenuFormSchema {
-  id: string;
+type MenuFormValues = {
+  name: string;
+  description: string;
+  price: number;
+  category: typeof categories[number];
   image?: File;
 }
-
-const mockMenus: Menu[] = [
-  {
-    id: "1",
-    name: "Spicy Chicken Burger",
-    description: "Juicy chicken patty with a spicy kick, fresh veggies, and our secret sauce.",
-    price: 12.99,
-    category: "Main Course",
-    image: undefined,
-  },
-  {
-    id: "2",
-    name: "Vegetarian Pizza",
-    description: "Loaded with fresh vegetables, mozzarella cheese, and our homemade tomato sauce.",
-    price: 14.99,
-    category: "Main Course",
-    image: undefined,
-  },
-];
-
-const categories = ["Appetizer", "Main Course", "Dessert","Swallows","Drinks","Rice Dishes","Soups","Stews","Grilled" ];
 
 export default function AddMenu() {
   const [open, setOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
-  const [selectedMenu, setSelectedMenu] = useState<Menu | null>(null);
-  const [menus, setMenus] = useState<Menu[]>(mockMenus);
+  const [selectedMenu, setSelectedMenu] = useState<MenuItem | null>(null);
+  const { loading, createMenu } = useMenuStore();
+  const { restaurant } = useRestaurantStore();
 
-  const form = useForm<MenuFormSchema>({
-    resolver: zodResolver(menuFormSchema),
+  const form = useForm<MenuFormValues>({
+    resolver: zodResolver(menuSchema),
     defaultValues: {
       name: "",
       description: "",
       price: 0,
-      category: "",
+      category: "Main Course",
+      image: undefined,
     },
   });
 
-  const onSubmit = async (data: MenuFormSchema) => {
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    const newMenu: Menu = {
-      ...data,
-      id: Date.now().toString(),
-      image: data.image,
-    };
-    setMenus([...menus, newMenu]);
-    setOpen(false);
-    form.reset();
+  const onSubmit = async (data: MenuFormValues) => {
+    try {
+      const formData = new FormData();
+      formData.append("name", data.name);
+      formData.append("description", data.description);
+      formData.append("price", data.price.toString());
+      formData.append("category", data.category);
+      if (data.image) {
+        formData.append("image", data.image);
+      }
+      await createMenu(formData);
+      setOpen(false);
+      form.reset();
+    } catch (error) {
+      console.error("Error creating menu:", error);
+    }
   };
 
   return (
     <div className="max-w-6xl px-4 mx-auto my-10">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mt-20 mb-6">
         <h1 className="text-2xl font-bold md:text-3xl">Available Menus</h1>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
@@ -151,7 +136,12 @@ export default function AddMenu() {
                     <FormItem>
                       <FormLabel>Price</FormLabel>
                       <FormControl>
-                        <Input type="number" placeholder="Enter menu price" {...field} onChange={(e) => field.onChange(parseFloat(e.target.value))} />
+                        <Input 
+                          type="number" 
+                          placeholder="Enter menu price" 
+                          {...field} 
+                          onChange={(e) => field.onChange(parseFloat(e.target.value))} 
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -188,23 +178,32 @@ export default function AddMenu() {
                     <FormItem>
                       <FormLabel>Upload Menu Image</FormLabel>
                       <FormControl>
-                        <Input type="file" accept="image/*" onChange={(e) => field.onChange(e.target.files?.[0])} />
+                        <Input 
+                          type="file" 
+                          accept="image/*" 
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              field.onChange(file);
+                            }
+                          }}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
                 <DialogFooter>
-                  <Button type="submit" disabled={form.formState.isSubmitting}>
-                    {form.formState.isSubmitting ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Please wait
-                      </>
-                    ) : (
-                      "Submit"
-                    )}
-                  </Button>
+                  {loading ? (
+                    <Button disabled>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Please wait
+                    </Button>
+                  ) : (
+                    <Button className="">
+                      Submit
+                    </Button>
+                  )}
                 </DialogFooter>
               </form>
             </Form>
@@ -212,12 +211,12 @@ export default function AddMenu() {
         </Dialog>
       </div>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {menus.map((menu) => (
-          <Card key={menu.id}>
+        {restaurant?.menus.map((menu) => (
+          <Card key={menu._id}>
             <CardContent className="p-4">
               <div className="flex items-center space-x-4">
                 <img
-                  src={menu.image ? URL.createObjectURL(menu.image) : "/placeholder.svg?height=96&width=96"}
+                  src={menu.image || "/placeholder.svg?height=96&width=96"}
                   alt={menu.name}
                   className="object-cover w-24 h-24 rounded-md"
                 />

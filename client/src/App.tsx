@@ -19,6 +19,7 @@ import ForgotPassword from "./auth/ForgotPassword";
 import ResetPassword from "./auth/ResetPassword";
 import VerifyEmail from "./auth/verifyEmail";
 import HomePage from "./pages/HomePage";
+import PageNotFound from "./components/PageNotFound";
 
 const ProtectedRoutes = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, user } = useUserStore();
@@ -120,6 +121,10 @@ const appRouter = createBrowserRouter([
     path: "/verify-email",
     element: <VerifyEmail />,
   },
+  {
+    path: "*",
+    element: <PageNotFound />,
+  }
 ]);
 
 function App() {

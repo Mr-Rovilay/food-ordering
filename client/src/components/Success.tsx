@@ -1,4 +1,4 @@
-import { IndianRupee, CheckCircle2, Package, ArrowLeft, Clock } from "lucide-react"
+import { CheckCircle2, Clock } from "lucide-react"
 import { Separator } from "./ui/separator"
 import { Link } from "react-router-dom"
 import { Button } from "./ui/button"
@@ -40,7 +40,7 @@ const Success = () => {
 //   }
 
   return (
-    <div className="min-h-screen px-4 py-8 bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen px-4 py-8 mt-16 dark:bg-gray-900">
       <div className="max-w-2xl mx-auto">
         <Card className="border-0 shadow-lg">
           <CardHeader className="pb-2 text-center">

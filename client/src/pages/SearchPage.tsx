@@ -1,83 +1,53 @@
-import { useState } from "react"
-import { Link } from "react-router-dom"
+import { useEffect, useState } from "react"
+import { Link, useParams } from "react-router-dom"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Globe, MapPin, Search, X } from "lucide-react"
-import FilterPage from "./FilterPage";
-
-type Restaurant = {
-  id: string
-  name: string
-  city: string
-  country: string
-  cuisines: string[]
-  featured: boolean
-  imageUrl: string
-}
-
-const MOCK_RESTAURANTS: Restaurant[] = [
-  {
-    id: "1",
-    name: "Iya Togo's Kitchen",
-    city: "Lagos",
-    country: "Nigeria",
-    cuisines: ["Local", "African"],
-    featured: true,
-    imageUrl: "/heroImg.jpg"
-  },
-  {
-    id: "2",
-    name: "Iya Maria's Spot",
-    city: "Abuja",
-    country: "Nigeria",
-    cuisines: ["Traditional", "Seafood"],
-    featured: false,
-    imageUrl: "/heroImg.jpg"
-  },
-  {
-    id: "3",
-    name: "Iya Joy Foods",
-    city: "Port Harcourt",
-    country: "Nigeria",
-    cuisines: ["Homestyle", "Grill"],
-    featured: true,
-     imageUrl: "/heroImg.jpg"
-  },
-  {
-    id: "4",
-    name: "Mama's Delight",
-    city: "Ibadan",
-    country: "Nigeria",
-    cuisines: ["Fusion", "Continental"],
-    featured: false,
-    imageUrl: "/heroImg.jpg"
-  },
-]
+import FilterPage from "./FilterPage"
+import { useRestaurantStore } from "@/store/useRestaurantStore"
+import NoResultFound from "@/components/NoResultFound"
+import { SearchPageSkeleton } from "@/components/SearchPageSkeleton"
+import { Restaurant } from "@/types/restaurantType"
 
 export default function SearchPage() {
+  const params = useParams<{ text: string }>()
   const [searchQuery, setSearchQuery] = useState<string>("")
-  const [selectedFilters, setSelectedFilters] = useState<string[]>([])
+  const {
+    loading,
+    searchedRestaurant,
+    searchRestaurant,
+    setAppliedFilter,
+    appliedFilter,
+  } = useRestaurantStore()
 
-  const filteredRestaurants = MOCK_RESTAURANTS.filter(
-    (restaurant) =>
-      restaurant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      restaurant.cuisines.some((cuisine) =>
-        cuisine.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-  )
+  useEffect(() => {
+    if (params.text) {
+      searchRestaurant(params.text, searchQuery, appliedFilter)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params.text, appliedFilter])
 
-  const handleRemoveFilter = (filter: string) => {
-    setSelectedFilters(selectedFilters.filter((f) => f !== filter))
+  const handleSearch = () => {
+    if (params.text) {
+      searchRestaurant(params.text, searchQuery, appliedFilter)
+    }
+  }
+
+  const handleRemoveFilter = (filterToRemove: string) => {
+    const updatedFilters = appliedFilter.filter(
+      (filter) => filter !== filterToRemove
+    )
+    setAppliedFilter(updatedFilters)
   }
 
   return (
-    <div className="mx-auto my-10 max-padd-container">
-      <div className="flex flex-col gap-10 md:flex-row">
+    <div className="px-4 mx-auto my-10 max-w-7xl sm:px-6 lg:px-8">
+      <div className="flex flex-col gap-10 mt-20 md:flex-row">
         <aside className="w-full md:w-1/4">
           <div className="p-4 bg-gray-100 rounded-lg">
-           <FilterPage />
+            <FilterPage />
           </div>
         </aside>
         <main className="flex-1">
@@ -87,9 +57,11 @@ export default function SearchPage() {
               placeholder="Search by restaurant or cuisine"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
               className="pr-10"
             />
             <Button
+              onClick={handleSearch}
               size="icon"
               className="absolute -translate-y-1/2 right-1 top-1/2"
             >
@@ -100,12 +72,12 @@ export default function SearchPage() {
 
           <div className="flex flex-col gap-4 mb-6 md:flex-row md:items-center">
             <h2 className="text-lg font-semibold">
-              {filteredRestaurants.length} results found
+              ({searchedRestaurant?.data.length || 0}) Search result found
             </h2>
             <div className="flex flex-wrap gap-2">
-              {selectedFilters.map((filter) => (
+              {appliedFilter.map((filter: string, idx: number) => (
                 <Badge
-                  key={filter}
+                  key={idx}
                   variant="secondary"
                   className="px-2 py-1 text-sm"
                 >
@@ -123,49 +95,67 @@ export default function SearchPage() {
           </div>
 
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {filteredRestaurants.map((restaurant) => (
-              <Card key={restaurant.id} className="overflow-hidden">
-                <div className="relative aspect-video">
-                  <img
-                    src={restaurant.imageUrl}
-                    alt={restaurant.name}
-                    className="object-cover w-full h-full"
-                  />
-                  {restaurant.featured && (
-                    <div className="absolute px-2 py-1 text-sm font-medium bg-white rounded top-2 left-2 bg-opacity-90">
-                      Featured
+            {loading ? (
+              <SearchPageSkeleton />
+            ) : !searchedRestaurant?.data.length ? (
+              <NoResultFound searchText={params.text || ""} />
+            ) : (
+              searchedRestaurant.data.map((restaurant: Restaurant) => (
+                <Card key={restaurant._id} className="overflow-hidden">
+                  <div className="relative aspect-video">
+                    <img
+                      src={restaurant.imageUrl}
+                      alt={restaurant.restaurantName}
+                      className="object-cover w-full h-full"
+                    />
+                    {restaurant.featured && (
+                      <div className="absolute px-2 py-1 text-sm font-medium bg-white rounded top-2 left-2 bg-opacity-90">
+                        Featured
+                      </div>
+                    )}
+                  </div>
+                  <CardContent className="p-4">
+                    <h3 className="mb-2 text-xl font-bold">
+                      {restaurant.restaurantName}
+                    </h3>
+                    <div className="flex items-center gap-1 mb-1 text-gray-600">
+                      <MapPin className="w-4 h-4" />
+                      <span className="text-sm">
+                        City: <span className="font-medium">{restaurant.city}</span>
+                      </span>
                     </div>
-                  )}
-                </div>
-                <CardContent className="p-4">
-                  <h3 className="mb-2 text-xl font-bold">{restaurant.name}</h3>
-                  <div className="flex items-center gap-1 mb-1 text-gray-600">
-                    <MapPin className="w-4 h-4" />
-                    <span className="text-sm">
-                      City: <span className="font-medium">{restaurant.city}</span>
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1 mb-4 text-gray-600">
-                    <Globe className="w-4 h-4" />
-                    <span className="text-sm">
-                      Country: <span className="font-medium">{restaurant.country}</span>
-                    </span>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {restaurant.cuisines.map((cuisine) => (
-                      <Badge key={cuisine} variant="outline" className="px-2 py-1">
-                        {cuisine}
-                      </Badge>
-                    ))}
-                  </div>
-                </CardContent>
-                <CardFooter className="p-4 border-t">
-                  <Link to={`/restaurant/${restaurant.id}`} className="ml-auto">
-                    <Button className="bg-green hover:bg-hoverGreen">View Menu</Button>
-                  </Link>
-                </CardFooter>
-              </Card>
-            ))}
+                    <div className="flex items-center gap-1 mb-4 text-gray-600">
+                      <Globe className="w-4 h-4" />
+                      <span className="text-sm">
+                        Country:{" "}
+                        <span className="font-medium">{restaurant.country}</span>
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {restaurant.cuisines.map((cuisine) => (
+                        <Badge
+                          key={cuisine}
+                          variant="outline"
+                          className="px-2 py-1"
+                        >
+                          {cuisine}
+                        </Badge>
+                      ))}
+                    </div>
+                  </CardContent>
+                  <CardFooter className="p-4 border-t">
+                    <Link
+                      to={`/restaurant/${restaurant._id}`}
+                      className="ml-auto"
+                    >
+                      <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+                        View Menu
+                      </Button>
+                    </Link>
+                  </CardFooter>
+                </Card>
+              ))
+            )}
           </div>
         </main>
       </div>

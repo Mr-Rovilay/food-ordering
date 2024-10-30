@@ -144,7 +144,7 @@ const HeroSection: React.FC = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
-                className="absolute p-4 bg-white shadow-xl -bottom-6 -left-6 rounded-2xl"
+                className="absolute p-4 bg-white shadow-xl -bottom-6 -left-1 rounded-2xl"
               >
                 <div className="flex items-center gap-3">
                   <div className="flex items-center justify-center w-12 h-12 bg-orange-100 rounded-full">

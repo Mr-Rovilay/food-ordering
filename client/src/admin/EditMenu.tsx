@@ -1,3 +1,4 @@
+/* eslint-disable prefer-const */
 import { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -22,18 +23,47 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Textarea } from "@/components/ui/textarea"
+import { useMenuStore } from "@/store/useMenuStore"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+
+const categories = [
+  "Appetizer",
+  "Main Course",
+  "Dessert",
+  "Swallows",
+  "Drinks",
+  "Rice Dishes",
+  "Soups",
+  "Stews",
+  "Grilled"
+] as const
 
 const menuSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   description: z.string().min(10, "Description must be at least 10 characters"),
   price: z.number().min(0, "Price must be a positive number"),
+  category: z.enum(categories, {
+    errorMap: () => ({ message: "Please select a valid category" })
+  }),
   image: z.instanceof(File).optional(),
 })
 
 type MenuFormSchema = z.infer<typeof menuSchema>
 
-export default function EditMenu({ selectedMenu, editOpen, setEditOpen }) {
-  const loading = false
+interface EditMenuProps {
+  selectedMenu: MenuFormSchema & { _id: string } | null
+  editOpen: boolean
+  setEditOpen: (open: boolean) => void
+}
+
+export default function EditMenu({ selectedMenu, editOpen, setEditOpen }: EditMenuProps) {
+  const { loading, editMenu } = useMenuStore()
 
   const form = useForm<MenuFormSchema>({
     resolver: zodResolver(menuSchema),
@@ -41,6 +71,7 @@ export default function EditMenu({ selectedMenu, editOpen, setEditOpen }) {
       name: "",
       description: "",
       price: 0,
+      category: categories[0],
     },
   })
 
@@ -50,37 +81,40 @@ export default function EditMenu({ selectedMenu, editOpen, setEditOpen }) {
         name: selectedMenu.name,
         description: selectedMenu.description,
         price: selectedMenu.price,
+        category: selectedMenu.category,
       })
     }
   }, [selectedMenu, form])
 
   const onSubmit = async (data: MenuFormSchema) => {
     try {
-      // Log the raw form data first
       console.log('Form Data:', data)
       
       const formData = new FormData()
       formData.append("name", data.name)
       formData.append("description", data.description)
       formData.append("price", data.price.toString())
+      formData.append("category", data.category)
       if (data.image) {
         formData.append("image", data.image)
       }
       
-      // Log the FormData entries
       console.log('FormData entries:')
       for (let [key, value] of formData.entries()) {
         console.log(`${key}: ${value}`)
       }
       
-      // await editMenu(selectedMenu._id, formData)
-      setEditOpen(false)
+      if (selectedMenu && selectedMenu._id) {
+        await editMenu(selectedMenu._id, formData)
+        setEditOpen(false)
+      } else {
+        console.error('No menu selected for editing')
+      }
     } catch (error) {
       console.error('Error submitting form:', error)
     }
   }
 
-  // Log form values on any change
   useEffect(() => {
     const subscription = form.watch((value) => {
       console.log('Form values changed:', value)
@@ -139,6 +173,30 @@ export default function EditMenu({ selectedMenu, editOpen, setEditOpen }) {
                       onChange={(e) => field.onChange(parseFloat(e.target.value))}
                     />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="category"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Category</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a category" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {categories.map((category) => (
+                        <SelectItem key={category} value={category}>
+                          {category}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}

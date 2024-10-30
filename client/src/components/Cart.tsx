@@ -13,30 +13,19 @@ import {
 } from "./ui/table"
 import CheckoutConfirmPage from "@/pages/CheckoutConfirmPage"
 import { useCartStore } from "@/store/useCartStore"
-
-interface CartItem {
-  _id: string
-  name: string
-  price: number
-  quantity: number
-  image: string
-}
-
-const initialCart: CartItem[] = [
-  { _id: "1", name: "Product 1", price: 10, quantity: 2, image: "/placeholder.svg?height=40&width=40" },
-  { _id: "2", name: "Product 2", price: 15, quantity: 1, image: "/placeholder.svg?height=40&width=40" },
-]
+import { CartItem } from "@/types/cartType";
 
 export default function Cart() {
-  const [open, setOpen] = useState<boolean>(false)
-  const {cart, incrementQuantity,decrementQuantity,clearCart, removeFromTheCart  }  = useCartStore()
+  const [open, setOpen] = useState<boolean>(false);
+  const { cart, decrementQuantity, incrementQuantity,clearCart,removeFromTheCart } = useCartStore();
 
+  const totalAmount = cart.reduce((acc, ele) => {
+    return acc + ele.price * ele.quantity;
+  }, 0);
 
-
-  const totalAmount = cart.reduce((acc, item) => acc + item.price * item.quantity, 0)
 
   return (
-    <div className="flex flex-col px-4 mx-auto my-10 max-w-7xl">
+    <div className="flex flex-col px-4 mx-auto my-10 max-padd-container">
       <div className="flex justify-end mb-4">
         <Button variant="link" onClick={clearCart}>Clear All</Button>
       </div>
@@ -57,11 +46,11 @@ export default function Cart() {
               <TableCell>
                 <Avatar>
                   <AvatarImage src={item.image} alt={item.name} />
-                  <AvatarFallback>{item.name.substring(0, 2)}</AvatarFallback>
+                  <AvatarFallback>CN</AvatarFallback>
                 </Avatar>
               </TableCell>
               <TableCell>{item.name}</TableCell>
-              <TableCell>${item.price.toFixed(2)}</TableCell>
+              <TableCell> {item.price}</TableCell>
               <TableCell>
                 <div className="flex items-center border border-gray-200 rounded-full shadow-sm w-fit dark:border-gray-700">
                   <Button
@@ -83,7 +72,7 @@ export default function Cart() {
                   </Button>
                 </div>
               </TableCell>
-              <TableCell>${(item.price * item.quantity).toFixed(2)}</TableCell>
+              <TableCell>	₦{item.price * item.quantity}</TableCell>
               <TableCell className="text-right">
                 <Button
                   size="sm"
@@ -100,7 +89,7 @@ export default function Cart() {
         <TableFooter>
           <TableRow>
             <TableCell colSpan={5}>Total</TableCell>
-            <TableCell className="font-medium text-right">${totalAmount.toFixed(2)}</TableCell>
+            <TableCell className="font-medium text-right">	₦{totalAmount.toFixed(2)}</TableCell>
           </TableRow>
         </TableFooter>
       </Table>

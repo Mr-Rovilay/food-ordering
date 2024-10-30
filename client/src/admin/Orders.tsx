@@ -14,9 +14,9 @@ import {
   CardTitle 
 } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Package, MapPin, DollarSign, Clock, Currency } from "lucide-react"
-// import { useRestaurantStore } from "@/store/useRestaurantStore"
-// import { useEffect } from "react"
+import { Package, MapPin, Clock, Currency } from "lucide-react"
+ import { useRestaurantStore } from "@/store/useRestaurantStore"
+ import { useEffect } from "react"
 
 const statusColors = {
   pending: "bg-yellow-100 text-yellow-800",
@@ -27,20 +27,20 @@ const statusColors = {
 }
 
 const Orders = () => {
-//   const { restaurantOrder, getRestaurantOrders, updateRestaurantOrder } =
-//     useRestaurantStore();
+  const { restaurantOrder, getRestaurantOrders, updateRestaurantOrder } =
+     useRestaurantStore();
 
-//   const handleStatusChange = async (id: string, status: string) => {
-//     await updateRestaurantOrder(id, status);
-//   };
+   const handleStatusChange = async (id: string, status: string) => {
+    await updateRestaurantOrder(id, status);
+  };
 
-//   useEffect(() => {
-//     getRestaurantOrders(); 
-//   }, []);
+  useEffect(() => {
+    getRestaurantOrders(); 
+  }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="px-4 py-8 mx-auto max-w-7xl sm:px-6 lg:px-8">
+    <div className="min-h-screen dark:bg-gray-900">
+      <div className="px-4 py-8 mx-auto mt-16 max-w-7xl sm:px-6 lg:px-8">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
             Orders Dashboard
@@ -53,7 +53,7 @@ const Orders = () => {
 
         <div className="grid gap-6">
           {/* Restaurant Orders display here  */}
-          {/* {restaurantOrder.map((order) => ( */}
+          {restaurantOrder.map((order) => (
             <Card>
               <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
                 <CardTitle className="text-xl font-bold">
@@ -82,8 +82,8 @@ const Orders = () => {
                       <div>
                         <Label className="text-sm font-medium text-gray-500">Delivery Address</Label>
                         <p className="text-base font-medium">
-                          {/* {order.deliveryDetails.address} */}
-                          123 Main St, City
+                          {order.deliveryDetails.address}
+                          
                         </p>
                       </div>
                     </div>
@@ -92,8 +92,8 @@ const Orders = () => {
                       <div>
                         <Label className="text-sm font-medium text-gray-500">Total Amount</Label>
                         <p className="text-base font-medium">
-                          {/* ${order.totalAmount / 100} */}
-                          ₦100
+                          ${order.totalAmount / 100}
+                        
                         </p>
                       </div>
                     </div>
@@ -104,10 +104,10 @@ const Orders = () => {
                       Update Order Status
                     </Label>
                     <Select
-                      // onValueChange={(newStatus) =>
-                      //   handleStatusChange(order._id, newStatus)
-                      // }
-                      // defaultValue={order.status}
+                      onValueChange={(newStatus) =>
+                        handleStatusChange(order._id, newStatus)
+                      }
+                      defaultValue={order.status}
                     >
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select Status" />
@@ -132,7 +132,7 @@ const Orders = () => {
                 </div>
               </CardContent>
             </Card>
-          {/* ))} */}
+          ))} 
         </div>
       </div>
     </div>

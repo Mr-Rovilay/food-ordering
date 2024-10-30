@@ -43,7 +43,7 @@ const Footer = () => {
                 <h2 className="text-xl font-bold md:font-extrabold">
                   Food<span className="text-green">Palace</span>
                 </h2>
-                <p className="text-sm leading-relaxed md:text-lg">
+                <p className="text-sm leading-relaxed">
                   Discover a world of delicious cuisine delivered right to your doorstep. 
                   Fresh ingredients, authentic flavors, and seamless service.
                 </p>
@@ -61,7 +61,7 @@ const Footer = () => {
             {/* Quick Links */}
             <div className="space-y-4">
               <h3 className="text-sm font-semibold text-white md:text-lg">Quick Links</h3>
-              <ul className="space-y-3">
+              <ul className="space-y-3 text-sm">
                 <li><FooterLink to="/">Home</FooterLink></li>
                 <li><FooterLink to="/menu">Our Menu</FooterLink></li>
                 <li><FooterLink to="/profile">My Profile</FooterLink></li>

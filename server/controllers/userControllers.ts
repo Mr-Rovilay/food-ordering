@@ -216,7 +216,7 @@ export const checkAuth = async (req: Request, res: Response, next: NextFunction)
   export const updateProfile = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const userId = req.id; // Changed from req.id to req.userId
-      const { fullname, email, address, city, country, bio, profilePicture } = req.body;
+      const { fullname, email, address, city, country,contact, bio, profilePicture } = req.body;
       
       let cloudResponse;
       if (profilePicture) {
@@ -228,7 +228,8 @@ export const checkAuth = async (req: Request, res: Response, next: NextFunction)
         email, 
         address, 
         city, 
-        country, 
+        country,
+        contact, 
         bio, 
         ...(cloudResponse && { profilePicture: cloudResponse.secure_url })
       };
