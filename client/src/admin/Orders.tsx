@@ -15,28 +15,69 @@ import {
 } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Package, MapPin, Clock, Currency } from "lucide-react"
- import { useRestaurantStore } from "@/store/useRestaurantStore"
- import { useEffect } from "react"
+import { useRestaurantStore } from "@/store/useRestaurantStore"
+import { useEffect } from "react"
+
+interface DeliveryDetails {
+  name: string;
+  address: string;
+  phone: string;
+}
+
+interface CartItem {
+  name: string;
+  quantity: number;
+  price: number;
+}
+
+interface Order {
+  _id: string;
+  deliveryDetails: DeliveryDetails;
+  cartItems: CartItem[];
+  totalAmount: number;
+  status: string;
+  createdAt: string;
+}
 
 const statusColors = {
-  pending: "bg-yellow-100 text-yellow-800",
-  confirmed: "bg-blue-100 text-blue-800",
-  preparing: "bg-purple-100 text-purple-800",
-  outfordelivery: "bg-orange-100 text-orange-800",
-  delivered: "bg-green-100 text-green-800"
-}
+  pending: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300",
+  confirmed: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
+  preparing: "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300",
+  outfordelivery: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300",
+  delivered: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
+} as const;
+
+type OrderStatus = keyof typeof statusColors;
+
+const formatCurrency = (amount: number): string => {
+  return `₦${(amount / 100).toLocaleString()}`;
+};
+
+const formatDate = (dateString: string): string => {
+  return new Date(dateString).toLocaleString();
+};
 
 const Orders = () => {
   const { restaurantOrder, getRestaurantOrders, updateRestaurantOrder } =
-     useRestaurantStore();
+    useRestaurantStore();
 
-   const handleStatusChange = async (id: string, status: string) => {
+  const handleStatusChange = async (id: string, status: string) => {
     await updateRestaurantOrder(id, status);
   };
 
   useEffect(() => {
-    getRestaurantOrders(); 
-  }, []);
+    getRestaurantOrders();
+  }, [getRestaurantOrders]);
+
+  const getStatusColor = (status: string): string => {
+    const normalizedStatus = status.toLowerCase().replace(/\s+/g, '') as OrderStatus;
+    return statusColors[normalizedStatus] || "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300";
+  };
+
+  const getOrderItemsSummary = (items: CartItem[]): string => {
+    const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
+    return `${totalItems} ${totalItems === 1 ? 'item' : 'items'}`;
+  };
 
   return (
     <div className="min-h-screen dark:bg-gray-900">
@@ -52,16 +93,19 @@ const Orders = () => {
         </div>
 
         <div className="grid gap-6">
-          {/* Restaurant Orders display here  */}
-          {restaurantOrder.map((order) => (
-            <Card>
+        {restaurantOrder.map((order) => (
+            <Card key={order._id} className="border dark:border-gray-800">
               <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-                <CardTitle className="text-xl font-bold">
-                  {/* {order.deliveryDetails.name} */}
-                  Order #1234
-                </CardTitle>
-                <Badge className={statusColors['pending']}>
-                  Pending
+                <div className="space-y-1">
+                  <CardTitle className="text-xl font-bold dark:text-white">
+                    {order.deliveryDetails.name}
+                  </CardTitle>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    {formatDate(order.createdAt)}
+                  </p>
+                </div>
+                <Badge className={getStatusColor(order.status)}>
+                  {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                 </Badge>
               </CardHeader>
               <CardContent>
@@ -71,9 +115,13 @@ const Orders = () => {
                       <Package className="w-5 h-5 text-gray-500" />
                       <div>
                         <Label className="text-sm font-medium text-gray-500">Order Items</Label>
-                        <p className="text-base font-medium">
-                          {/* {order.items.length} items */}
-                          3 items
+                        <p className="text-base font-medium dark:text-white">
+                          {getOrderItemsSummary(order.cartItems)}
+                          <span className="block text-sm text-gray-500">
+                            {order.cartItems.map(item => 
+                              `${item.quantity}x ${item.name}`
+                            ).join(', ')}
+                          </span>
                         </p>
                       </div>
                     </div>
@@ -81,9 +129,8 @@ const Orders = () => {
                       <MapPin className="w-5 h-5 text-gray-500" />
                       <div>
                         <Label className="text-sm font-medium text-gray-500">Delivery Address</Label>
-                        <p className="text-base font-medium">
+                        <p className="text-base font-medium dark:text-white">
                           {order.deliveryDetails.address}
-                          
                         </p>
                       </div>
                     </div>
@@ -91,9 +138,8 @@ const Orders = () => {
                       <Currency className="w-5 h-5 text-gray-500" />
                       <div>
                         <Label className="text-sm font-medium text-gray-500">Total Amount</Label>
-                        <p className="text-base font-medium">
-                          ${order.totalAmount / 100}
-                        
+                        <p className="text-base font-medium dark:text-white">
+                        {order.totalAmount / 100}
                         </p>
                       </div>
                     </div>
@@ -120,8 +166,8 @@ const Orders = () => {
                             "Preparing",
                             "OutForDelivery",
                             "Delivered",
-                          ].map((status: string, index: number) => (
-                            <SelectItem key={index} value={status.toLowerCase()}>
+                          ].map((status: string) => (
+                            <SelectItem key={status} value={status.toLowerCase()}>
                               {status}
                             </SelectItem>
                           ))}
@@ -132,11 +178,11 @@ const Orders = () => {
                 </div>
               </CardContent>
             </Card>
-          ))} 
+          ))}
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Orders
+export default Orders;

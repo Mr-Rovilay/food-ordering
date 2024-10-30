@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, FormEvent, Dispatch, SetStateAction } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -13,11 +13,11 @@ import {
 } from "@/components/ui/card";
 import { Loader2, ShoppingBag, MapPin, User, Phone, Mail, Globe } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useUserStore } from "@/store/useUserStore";
+import { useCartStore } from "@/store/useCartStore";
+import { useRestaurantStore } from "@/store/useRestaurantStore";
+import { useOrderStore } from "@/store/useOrderStore";
 
-interface CheckoutConfirmPageProps {
-  open: boolean;
-  setOpen: (open: boolean) => void;
-}
 
 interface FormData {
   name: string;
@@ -37,18 +37,39 @@ interface FormErrors {
   country?: string;
 }
 
-const DEFAULT_FORM_DATA: FormData = {
-  name: "",
-  email: "user@example.com",
-  contact: "",
-  address: "",
-  city: "",
-  country: "",
-};
+interface CheckoutSessionRequest {
+  cartItems: Array<{
+    menuId: string;
+    name: string;
+    image: string;
+    price: string;
+    quantity: string;
+  }>;
+  deliveryDetails: FormData;
+  restaurantId: string;
+}
 
-export default function CheckoutConfirmPage({ open, setOpen }: CheckoutConfirmPageProps) {
-  const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState<FormData>(DEFAULT_FORM_DATA);
+export const CheckoutConfirmPage = ({
+  open,
+  setOpen,
+}: {
+  open: boolean;
+  setOpen: Dispatch<SetStateAction<boolean>>;
+}) => {
+  const { user } = useUserStore();
+  const { cart } = useCartStore();
+  const { restaurant } = useRestaurantStore();
+  const { createCheckoutSession, loading } = useOrderStore();
+
+  const [formData, setFormData] = useState<FormData>({
+    name: user?.fullname || "",
+    email: user?.email || "",
+    contact: user?.contact?.toString() || "",
+    address: user?.address || "",
+    city: user?.city || "",
+    country: user?.country || "",
+  });
+
   const [errors, setErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [step, setStep] = useState(1);
@@ -56,27 +77,27 @@ export default function CheckoutConfirmPage({ open, setOpen }: CheckoutConfirmPa
   const validateField = (name: keyof FormData, value: string): string | undefined => {
     switch (name) {
       case "name":
-        return value.length < 2 ? "Name must be at least 2 characters" : undefined;
+        return value.trim().length < 2 ? "Name must be at least 2 characters" : undefined;
       case "email":
         return !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) 
           ? "Invalid email address" 
           : undefined;
       case "contact":
-        return !/^\d+$/.test(value) 
+        return !/^\d+$/.test(value.trim()) 
           ? "Contact must be a valid number" 
-          : value.length < 5 
+          : value.trim().length < 5 
             ? "Contact number must be at least 5 digits" 
             : undefined;
       case "address":
-        return value.length < 5 
+        return value.trim().length < 5 
           ? "Address must be at least 5 characters" 
           : undefined;
       case "city":
-        return value.length < 2 
+        return value.trim().length < 2 
           ? "City must be at least 2 characters" 
           : undefined;
       case "country":
-        return value.length < 2 
+        return value.trim().length < 2 
           ? "Country must be at least 2 characters" 
           : undefined;
       default:
@@ -108,40 +129,60 @@ export default function CheckoutConfirmPage({ open, setOpen }: CheckoutConfirmPa
     }));
   };
 
-  const validateForm = (): boolean => {
-    const newErrors: FormErrors = {};
+  const validateStep = (currentStep: number): boolean => {
+    const fieldsToValidate = currentStep === 1 
+      ? ['name', 'email', 'contact'] 
+      : ['address', 'city', 'country'];
+
+    const stepErrors: FormErrors = {};
     let isValid = true;
 
-    (Object.keys(formData) as Array<keyof FormData>).forEach(field => {
-      const error = validateField(field, formData[field]);
+    fieldsToValidate.forEach((field) => {
+      const error = validateField(field as keyof FormData, formData[field as keyof FormData]);
       if (error) {
-        newErrors[field] = error;
+        stepErrors[field as keyof FormErrors] = error;
         isValid = false;
       }
     });
 
-    setErrors(newErrors);
+    setErrors(prev => ({ ...prev, ...stepErrors }));
     return isValid;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const allTouched = Object.keys(formData).reduce(
-      (acc, key) => ({ ...acc, [key]: true }),
-      {}
-    );
-    setTouched(allTouched);
-
-    if (!validateForm()) {
-      return;
+  const handleNextStep = () => {
+    const isValid = validateStep(step);
+    if (isValid) {
+      setStep(2);
     }
+  };
 
-    setLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    console.log("Form submitted:", formData);
-    setLoading(false);
-    setOpen(false);
+  const handleCheckout = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    
+    if (!validateStep(2)) return;
+
+    try {
+      if (!restaurant?._id) {
+        throw new Error("Restaurant ID is missing");
+      }
+
+      const checkoutData: CheckoutSessionRequest = {
+        cartItems: cart.map((cartItem) => ({
+          menuId: cartItem._id,
+          name: cartItem.name,
+          image: cartItem.image,
+          price: cartItem.price.toString(),
+          quantity: cartItem.quantity.toString(),
+        })),
+        deliveryDetails: formData,
+        restaurantId: restaurant?._id as string,
+      };
+
+      await createCheckoutSession(checkoutData);
+    } catch (error) {
+      console.error("Checkout error:", error);
+      // You might want to show an error message to the user here
+    }
   };
 
   const renderFormField = (
@@ -158,6 +199,7 @@ export default function CheckoutConfirmPage({ open, setOpen }: CheckoutConfirmPa
       </label>
       <Input
         id={field}
+        name={field}
         type={type}
         value={formData[field]}
         onChange={handleChange(field)}
@@ -165,7 +207,7 @@ export default function CheckoutConfirmPage({ open, setOpen }: CheckoutConfirmPa
         disabled={disabled}
         className={cn(
           "transition-colors",
-          errors[field] ? 'border-red-500 focus-visible:ring-red-500' : ''
+          errors[field] ? "border-red-500 focus-visible:ring-red-500" : ""
         )}
         placeholder={`Enter your ${label.toLowerCase()}`}
       />
@@ -177,7 +219,7 @@ export default function CheckoutConfirmPage({ open, setOpen }: CheckoutConfirmPa
 
   const renderProgressSteps = () => (
     <div className="flex justify-between mb-8">
-      <div className="flex items-center w-full">
+      <div className="flex items-center w-full px-6">
         {[1, 2].map((stepNumber) => (
           <div key={stepNumber} className="flex items-center w-full">
             <div className={cn(
@@ -210,14 +252,14 @@ export default function CheckoutConfirmPage({ open, setOpen }: CheckoutConfirmPa
 
         {renderProgressSteps()}
 
-        <form onSubmit={handleSubmit} className="p-6 pt-0">
+        <form onSubmit={handleCheckout} className="p-6 pt-0">
           <div className="space-y-6">
             {step === 1 ? (
               <Card>
                 <CardContent className="p-6 space-y-4">
                   {renderFormField("name", "Full Name", <User className="w-4 h-4" />)}
                   {renderFormField("email", "Email", <Mail className="w-4 h-4" />, "email", true)}
-                  {renderFormField("contact", "Contact", <Phone className="w-4 h-4" />)}
+                  {renderFormField("contact", "Contact", <Phone className="w-4 h-4" />, "tel")}
                 </CardContent>
               </Card>
             ) : (
@@ -243,24 +285,19 @@ export default function CheckoutConfirmPage({ open, setOpen }: CheckoutConfirmPa
               )}
               <Button 
                 type={step === 2 ? "submit" : "button"}
-                className="flex-1"
+                className="flex-1 "
                 disabled={loading}
-                onClick={() => {
-                  if (step === 1) {
-                    const isValid = !errors.name && !errors.email && !errors.contact;
-                    if (isValid) setStep(2);
-                  }
-                }}
+                onClick={step === 1 ? handleNextStep : undefined}
               >
                 {loading ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Processing
+                    Please wait
                   </>
                 ) : step === 1 ? (
                   "Next Step"
                 ) : (
-                  "Confirm Order"
+                  "Continue To Payment"
                 )}
               </Button>
             </div>
@@ -269,4 +306,4 @@ export default function CheckoutConfirmPage({ open, setOpen }: CheckoutConfirmPa
       </DialogContent>
     </Dialog>
   );
-}
+};

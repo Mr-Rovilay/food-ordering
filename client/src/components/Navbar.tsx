@@ -37,9 +37,12 @@ import {
 } from "@/components/ui/sheet";
 import { Separator } from "./ui/separator";
 import { useUserStore } from "@/store/useUserStore";
+import { useThemeStore } from "@/store/useThemeStore";
+import { useCartStore } from "@/store/useCartStore";
 
 const Navbar = () => {
-  const { user, loading,logout } = useUserStore();
+  const { user, loading, logout } = useUserStore();
+  const { cart } = useCartStore();
 
   return (
     <nav className="fixed top-0 z-50 w-full border-b backdrop-blur-sm bg-white/75 dark:bg-slate-950/75">
@@ -48,7 +51,7 @@ const Navbar = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
             <h2 className="text-xl font-bold text-transparent md:text-2xl md:font-extrabold bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-400 bg-clip-text">
-              Food<span className="text-green">Palace</span>
+              Food<span className="text-green-600">Palace</span>
             </h2>
           </Link>
 
@@ -62,7 +65,7 @@ const Navbar = () => {
               {user?.admin && (
                 <Menubar className="bg-transparent border-none">
                   <MenubarMenu>
-                    <MenubarTrigger className="text-sm font-medium transition-colors cursor-pointer hover:text-green">
+                    <MenubarTrigger className="text-sm font-medium transition-colors cursor-pointer hover:text-green-600">
                       Dashboard
                     </MenubarTrigger>
                     <MenubarContent className="min-w-[140px]">
@@ -93,18 +96,22 @@ const Navbar = () => {
               
               <Link to="/cart" className="relative p-2 transition-colors rounded-full hover:bg-slate-100 dark:hover:bg-slate-800">
                 <ShoppingCart className="w-5 h-5" />
-                <span className="absolute flex items-center justify-center w-5 h-5 text-xs text-white bg-red-500 rounded-full -top-1 -right-1">
-                  5
-                </span>
+                {cart.length > 0 && (
+                  <span className="absolute flex items-center justify-center w-5 h-5 text-xs text-white bg-red-500 rounded-full -top-1 -right-1">
+                    {cart.length}
+                  </span>
+                )}
               </Link>
 
               <Avatar className="w-8 h-8 transition transform hover:scale-105">
-                <AvatarImage />
-                <AvatarFallback className="bg-slate-200 dark:bg-slate-700">CN</AvatarFallback>
+                <AvatarImage src={user?.profilePicture} alt="profilephoto"/>
+                <AvatarFallback className="bg-slate-200 dark:bg-slate-700">
+                  {user?.fullname?.substring(0, 2) || 'CN'}
+                </AvatarFallback>
               </Avatar>
 
               {loading ? (
-                <Button className="bg-green hover:bg-hoverGreen">
+                <Button className="bg-green-600 hover:bg-green-700">
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                   Please wait
                 </Button>
@@ -130,32 +137,41 @@ const Navbar = () => {
 const NavLink = ({ to, children }) => (
   <Link
     to={to}
-    className="text-sm font-medium transition-colors text-slate-700 dark:text-slate-200 hover:text-green dark:hover:text-green"
+    className="text-sm font-medium transition-colors text-slate-700 dark:text-slate-200 hover:text-green-600 dark:hover:text-green-600"
   >
     {children}
   </Link>
 );
 
 // Theme Toggle Component
-const ThemeToggle = () => (
-  <DropdownMenu>
-    <DropdownMenuTrigger asChild>
-      <Button variant="outline" size="icon" className="bg-transparent border-none hover:bg-slate-100 dark:hover:bg-slate-800">
-        <Sun className="w-5 h-5 transition-transform scale-100 rotate-0 dark:-rotate-90 dark:scale-0" />
-        <Moon className="absolute w-5 h-5 transition-transform scale-0 rotate-90 dark:rotate-0 dark:scale-100" />
-        <span className="sr-only">Toggle theme</span>
-      </Button>
-    </DropdownMenuTrigger>
-    <DropdownMenuContent align="end" className="min-w-[100px]">
-      <DropdownMenuItem className="cursor-pointer">Light</DropdownMenuItem>
-      <DropdownMenuItem className="cursor-pointer">Dark</DropdownMenuItem>
-    </DropdownMenuContent>
-  </DropdownMenu>
-);
+const ThemeToggle = () => {
+  const { setTheme } = useThemeStore();
+  
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" size="icon" className="bg-transparent border-none hover:bg-slate-100 dark:hover:bg-slate-800">
+          <Sun className="w-5 h-5 transition-transform scale-100 rotate-0 dark:-rotate-90 dark:scale-0" />
+          <Moon className="absolute w-5 h-5 transition-transform scale-0 rotate-90 dark:rotate-0 dark:scale-100" />
+          <span className="sr-only">Toggle theme</span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="min-w-[100px]">
+        <DropdownMenuItem className="cursor-pointer" onClick={() => setTheme('light')}>
+          Light
+        </DropdownMenuItem>
+        <DropdownMenuItem className="cursor-pointer" onClick={() => setTheme('dark')}>
+          Dark
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+};
 
 // Mobile Navigation Component
 const MobileNav = () => {
-  const { user } = useUserStore();
+  const { user, logout } = useUserStore();
+  const { cart } = useCartStore();
 
   return (
     <Sheet>
@@ -185,7 +201,7 @@ const MobileNav = () => {
             Order
           </MobileNavLink>
           <MobileNavLink to="/cart" icon={<ShoppingCart className="w-5 h-5" />}>
-            Cart (0)
+            Cart ({cart.length})
           </MobileNavLink>
 
           {user?.admin && (
@@ -208,13 +224,15 @@ const MobileNav = () => {
           <div className="flex flex-col w-full space-y-4">
             <div className="flex items-center space-x-3">
               <Avatar className="w-10 h-10">
-                <AvatarImage />
-                <AvatarFallback className="bg-slate-200 dark:bg-slate-700">CN</AvatarFallback>
+                <AvatarImage src={user?.profilePicture} />
+                <AvatarFallback className="bg-slate-200 dark:bg-slate-700">
+                  {user?.name?.substring(0, 2) || 'CN'}
+                </AvatarFallback>
               </Avatar>
-              <h1 className="text-lg font-bold">Ayodeji</h1>
+              <h1 className="text-lg font-bold">{user?.name || 'User'}</h1>
             </div>
             <SheetClose asChild>
-              <Button className="w-full bg-green hover:bg-hoverGreen">
+              <Button onClick={logout} className="w-full bg-green-600 hover:bg-green-700">
                 Logout
               </Button>
             </SheetClose>

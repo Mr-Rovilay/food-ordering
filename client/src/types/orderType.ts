@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export type CheckoutSessionRequest = {
     cartItems:{
         menuId:string;
@@ -17,6 +18,7 @@ export type CheckoutSessionRequest = {
     restaurantId:string;
 }
 export interface Orders extends CheckoutSessionRequest {
+    [x: string]: any;
     _id:string;
     status:string;
     totalAmount:number;
