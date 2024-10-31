@@ -41,6 +41,10 @@ app.use("/api/order", orderRoute);
 //   res.sendFile(path.resolve(DIRNAME, "client", "dist", "index.html"));
 // });
 
+app.get("/", (req, res) => {
+  res.send("OK...my message");
+});
+
 connectDB()
   .then(() => {
     app.listen(PORT, () => {
