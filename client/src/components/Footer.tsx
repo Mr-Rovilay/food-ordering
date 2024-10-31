@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn, FaMapMarkerAlt, FaPhoneAlt, FaEnvelope } from "react-icons/fa";
 
-const FooterLink = ({ to, children }) => (
+const FooterLink = ({ to, children }: { to: string; children: React.ReactNode }) => (
   <Link 
     to={to} 
     className="transition-colors duration-200 hover:text-primary hover:underline decoration-primary decoration-2 underline-offset-4"
@@ -10,7 +10,7 @@ const FooterLink = ({ to, children }) => (
   </Link>
 );
 
-const SocialIcon = ({ href, icon: Icon }) => (
+const SocialIcon = ({ href, icon: Icon }: { href: string; icon: React.ElementType }) => (
   <a 
     href={href} 
     target="_blank" 
@@ -21,10 +21,10 @@ const SocialIcon = ({ href, icon: Icon }) => (
   </a>
 );
 
-const ContactItem = ({ icon: Icon, children }) => (
+const ContactItem = ({ icon: Icon, children }: { icon: React.ElementType; children: React.ReactNode }) => (
   <div className="flex items-center gap-3">
     <Icon className="flex-shrink-0 w-5 h-5 text-green" />
-    <span>{children}</span>
+    {children}
   </div>
 );
 

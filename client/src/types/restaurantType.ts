@@ -1,16 +1,30 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Orders } from "./orderType";
 
-export type MenuItem = {
-    category: string;
+// Category enum to ensure type safety for menu item categories
+export enum MenuCategory {
+    Appetizer = "Appetizer",
+    MainCourse = "Main Course",
+    Dessert = "Dessert",
+    Swallows = "Swallows",
+    Drinks = "Drinks",
+    RiceDishes = "Rice Dishes",
+    Soups = "Soups",
+    Stews = "Stews",
+    Grilled = "Grilled"
+  }
+  
+  // Menu item interface
+  export interface MenuItem {
     _id: string;
+    category: MenuCategory;
     name: string;
     description: string;
     price: number;
     image: string;
-}
-
-export type Restaurant = {
+  }
+  
+  // Restaurant interface
+  export interface Restaurant {
     _id: string;
     user: string;
     restaurantName: string;
@@ -29,24 +43,39 @@ export type Restaurant = {
     openingHours: string;
     phone: string;
     instagram: string;
-    facebook:string   
-}
-
-export type SearchedRestaurant = {
-    data: Restaurant[]
-}
-
-export type RestaurantState = {
+    facebook: string;
+  }
+  
+  // Search result interface
+  export interface SearchedRestaurant {
+    data: Restaurant[];
+  }
+  
+  // Type for the filter parameters in search
+  export interface SearchParams {
+    searchText: string;
+    searchQuery: string;
+    selectedCuisines: string[]; // Changed from 'any' to be more specific
+  }
+  
+  // Restaurant state interface
+  export interface RestaurantState {
     loading: boolean;
     restaurant: Restaurant | null;
     searchedRestaurant: SearchedRestaurant | null;
     appliedFilter: string[];
     singleRestaurant: Restaurant | null;
-    restaurantOrder: Orders[];
+    restaurantOrder: Orders[]; // Assuming Orders type is imported
+  
+    // Methods
     createRestaurant: (formData: FormData) => Promise<void>;
     getRestaurant: () => Promise<void>;
     updateRestaurant: (formData: FormData) => Promise<void>;
-    searchRestaurant: (searchText: string, searchQuery: string, selectedCuisines: any) => Promise<void>;
+    searchRestaurant: (
+      searchText: string,
+      searchQuery: string,
+      selectedCuisines: string[]
+    ) => Promise<void>;
     addMenuToRestaurant: (menu: MenuItem) => void;
     updateMenuToRestaurant: (menu: MenuItem) => void;
     setAppliedFilter: (value: string) => void;
@@ -54,4 +83,4 @@ export type RestaurantState = {
     getSingleRestaurant: (restaurantId: string) => Promise<void>;
     getRestaurantOrders: () => Promise<void>;
     updateRestaurantOrder: (orderId: string, status: string) => Promise<void>;
-}
+  }

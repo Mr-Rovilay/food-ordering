@@ -1,134 +1,123 @@
-import React, { useCallback, useEffect, useState } from 'react'
-import useEmblaCarousel, { EmblaCarouselType } from 'embla-carousel-react'
-import Autoplay from 'embla-carousel-autoplay'
-import { ChevronLeft, ChevronRight, Quote } from 'lucide-react'
-import { Button } from './ui/button'
-import { Card, CardContent } from './ui/card'
+import { useCallback, useEffect, useState } from 'react'
+import { ChevronLeft, ChevronRight, Star } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 
-interface Testimonial {
-  id: number
-  name: string
-  role: string
-  content: string
-  image: string
-}
-
-const testimonials: Testimonial[] = [
+const testimonials = [
   {
     id: 1,
     name: "Sarah Johnson",
-    role: "Food Enthusiast",
-    content: "FoodPalace has transformed my dining experience! The variety of cuisines and the ease of ordering make it my go-to app for all my meals.",
-    image: "/api/placeholder/150/150"
+    role: "Marketing Director",
+    content: "This product has transformed how we handle our digital marketing campaigns. The analytics features are particularly impressive.",
+    rating: 5,
+    avatar: "/api/placeholder/100/100"
   },
   {
     id: 2,
-    name: "Mike Chen",
-    role: "Restaurant Owner",
-    content: "As a restaurant owner, partnering with FoodPalace has significantly increased our online presence and orders. Their platform is user-friendly and efficient.",
-    image: "/api/placeholder/150/150"
+    name: "Michael Chen",
+    role: "Software Engineer",
+    content: "The developer tools and API documentation are top-notch. Integration was seamless and the support team was incredibly helpful.",
+    rating: 5,
+    avatar: "/api/placeholder/100/100"
   },
   {
     id: 3,
-    name: "Emily Rodriguez",
-    role: "Busy Professional",
-    content: "FoodPalace saves me so much time! With their wide selection and quick delivery, I can enjoy gourmet meals even on my busiest days.",
-    image: "/api/placeholder/150/150"
-  },
-  {
-    id: 4,
-    name: "David Thompson",
-    role: "Food Blogger",
-    content: "I've tried numerous food delivery apps, but FoodPalace stands out with its intuitive interface and reliable service. It's a game-changer for foodies!",
-    image: "/api/placeholder/150/150"
-  },
-  {
-    id: 5,
-    name: "David Thompson",
-    role: "Food Blogger",
-    content: "I've tried numerous food delivery apps, but FoodPalace stands out with its intuitive interface and reliable service. It's a game-changer for foodies!",
-    image: "/api/placeholder/150/150"
+    name: "Emily Roberts",
+    role: "Small Business Owner",
+    content: "As someone running a growing business, this platform has been a game-changer. The automation features save me hours each week.",
+    rating: 4,
+    avatar: "/api/placeholder/100/100"
   }
 ]
 
-const Testimonials: React.FC = () => {
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: 'start' }, [Autoplay()])
-  const [prevBtnEnabled, setPrevBtnEnabled] = useState(false)
-  const [nextBtnEnabled, setNextBtnEnabled] = useState(false)
+const Testimonials = () => {
+  const [currentIndex, setCurrentIndex] = useState(0)
 
-  const scrollPrev = useCallback(() => emblaApi && emblaApi.scrollPrev(), [emblaApi])
-  const scrollNext = useCallback(() => emblaApi && emblaApi.scrollNext(), [emblaApi])
+  const scrollPrev = useCallback(() => {
+    setCurrentIndex((current) => 
+      current === 0 ? testimonials.length - 1 : current - 1
+    )
+  }, [])
 
-  const onSelect = useCallback((emblaApi: EmblaCarouselType) => {
-    setPrevBtnEnabled(emblaApi.canScrollPrev())
-    setNextBtnEnabled(emblaApi.canScrollNext())
+  const scrollNext = useCallback(() => {
+    setCurrentIndex((current) => 
+      current === testimonials.length - 1 ? 0 : current + 1
+    )
   }, [])
 
   useEffect(() => {
-    if (!emblaApi) return
+    const timer = setInterval(scrollNext, 5000)
+    return () => clearInterval(timer)
+  }, [scrollNext])
 
-    onSelect(emblaApi)
-    emblaApi.on('select', onSelect)
-    emblaApi.on('reInit', onSelect)
-  }, [emblaApi, onSelect])
+  const RenderStars = ({ count }: { count: number }) => (
+    <div className="flex gap-1">
+      {[...Array(count)].map((_, i) => (
+        <Star key={i} className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+      ))}
+    </div>
+  )
 
   return (
-    <section className="py-16 bg-gray-100">
-      <div className="max-padd-container">
-      <h2 className="relative inline-block mb-12 text-xl font-bold text-center text-gray-800">
-          What Our Customers Say
-          <span className="absolute bottom-0 left-0 w-full h-1 transform -translate-y-2 bg-gradient-to-r from-green via-green to-green"></span>
-        </h2>
-        <div className="relative overflow-hidden" ref={emblaRef}>
-          <div className="flex">
-            {testimonials.map((testimonial) => (
-              <div key={testimonial.id} className="flex-[0_0_100%] min-w-0 pl-4 sm:pl-6 md:flex-[0_0_50%] lg:flex-[0_0_33.33%]">
-                <Card className="h-full">
-                  <CardContent className="p-6">
-                    <div className="flex items-center mb-4">
-                      <img
-                        className="w-12 h-12 mr-4 rounded-full"
-                        src={testimonial.image}
-                        alt={testimonial.name}
-                      />
-                      <div>
-                        <h3 className="text-sm font-semibold text-gray-900">{testimonial.name}</h3>
-                        <p className="text-sm text-gray-600">{testimonial.role}</p>
-                      </div>
-                    </div>
-                    <Quote className="w-8 h-8 mb-4 text-primary/20" />
-                    <p className="italic text-gray-700">{testimonial.content}</p>
-                  </CardContent>
-                </Card>
-              </div>
-            ))}
+    <div className="relative max-w-3xl px-4 mx-auto">
+      <Card className="overflow-hidden bg-white shadow-xl">
+        <div className="relative h-full p-8">
+          <div className="flex flex-col items-center space-y-6 text-center">
+            <img
+              src={testimonials[currentIndex].avatar}
+              alt={testimonials[currentIndex].name}
+              className="object-cover w-20 h-20 rounded-full"
+            />
+            <RenderStars count={testimonials[currentIndex].rating} />
+            <blockquote className="text-lg italic text-gray-700">
+              "{testimonials[currentIndex].content}"
+            </blockquote>
+            <div className="space-y-1">
+              <h3 className="text-lg font-semibold">
+                {testimonials[currentIndex].name}
+              </h3>
+              <p className="text-sm text-gray-500">
+                {testimonials[currentIndex].role}
+              </p>
+            </div>
           </div>
         </div>
-        <div className="flex justify-center mt-8 space-x-4">
-          <Button
-            onClick={scrollPrev}
-            disabled={!prevBtnEnabled}
-            size="icon"
-            variant="outline"
-            className="rounded-full"
-          >
-            <ChevronLeft className="w-6 h-6" />
-            <span className="sr-only">Previous testimonial</span>
-          </Button>
-          <Button
-            onClick={scrollNext}
-            disabled={!nextBtnEnabled}
-            size="icon"
-            variant="outline"
-            className="rounded-full"
-          >
-            <ChevronRight className="w-6 h-6" />
-            <span className="sr-only">Next testimonial</span>
-          </Button>
-        </div>
-      </div>
-    </section>
-  )
-}
+      </Card>
 
-export default Testimonials
+      <div className="absolute left-0 right-0 flex justify-between transform -translate-y-1/2 top-1/2">
+        <Button
+          onClick={scrollPrev}
+          size="icon"
+          variant="outline"
+          className="bg-white rounded-full shadow-lg hover:bg-gray-100"
+        >
+          <ChevronLeft className="w-4 h-4" />
+          <span className="sr-only">Previous testimonial</span>
+        </Button>
+        <Button
+          onClick={scrollNext}
+          size="icon"
+          variant="outline"
+          className="bg-white rounded-full shadow-lg hover:bg-gray-100"
+        >
+          <ChevronRight className="w-4 h-4" />
+          <span className="sr-only">Next testimonial</span>
+        </Button>
+      </div>
+
+      <div className="flex justify-center gap-2 mt-4">
+        {testimonials.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => setCurrentIndex(index)}
+            className={`w-2 h-2 rounded-full transition-colors ${
+              index === currentIndex ? 'bg-blue-600' : 'bg-gray-300'
+            }`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default Testimonials;

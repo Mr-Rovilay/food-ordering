@@ -132,9 +132,8 @@ const Navbar = () => {
     </nav>
   );
 };
-
 // Navigation Link Component
-const NavLink = ({ to, children }) => (
+const NavLink = ({ to, children }: { to: string; children: React.ReactNode }) => (
   <Link
     to={to}
     className="text-sm font-medium transition-colors text-slate-700 dark:text-slate-200 hover:text-green-600 dark:hover:text-green-600"
@@ -226,10 +225,10 @@ const MobileNav = () => {
               <Avatar className="w-10 h-10">
                 <AvatarImage src={user?.profilePicture} />
                 <AvatarFallback className="bg-slate-200 dark:bg-slate-700">
-                  {user?.name?.substring(0, 2) || 'CN'}
+                  {user?.fullname?.substring(0, 2) || 'CN'}
                 </AvatarFallback>
               </Avatar>
-              <h1 className="text-lg font-bold">{user?.name || 'User'}</h1>
+              <h1 className="text-lg font-bold">{user?.fullname || 'User'}</h1>
             </div>
             <SheetClose asChild>
               <Button onClick={logout} className="w-full bg-green-600 hover:bg-green-700">
@@ -242,9 +241,8 @@ const MobileNav = () => {
     </Sheet>
   );
 };
-
 // Mobile Navigation Link Component
-const MobileNavLink = ({ to, icon, children }) => (
+const MobileNavLink = ({ to, icon, children }: { to: string; icon: JSX.Element; children: React.ReactNode }) => (
   <Link
     to={to}
     className="flex items-center px-4 py-3 space-x-4 text-sm font-medium transition-colors rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"

@@ -18,26 +18,12 @@ import { Package, MapPin, Clock, Currency } from "lucide-react"
 import { useRestaurantStore } from "@/store/useRestaurantStore"
 import { useEffect } from "react"
 
-interface DeliveryDetails {
-  name: string;
-  address: string;
-  phone: string;
-}
-
 interface CartItem {
   name: string;
   quantity: number;
   price: number;
 }
 
-interface Order {
-  _id: string;
-  deliveryDetails: DeliveryDetails;
-  cartItems: CartItem[];
-  totalAmount: number;
-  status: string;
-  createdAt: string;
-}
 
 const statusColors = {
   pending: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300",
@@ -49,9 +35,7 @@ const statusColors = {
 
 type OrderStatus = keyof typeof statusColors;
 
-const formatCurrency = (amount: number): string => {
-  return `₦${(amount / 100).toLocaleString()}`;
-};
+
 
 const formatDate = (dateString: string): string => {
   return new Date(dateString).toLocaleString();

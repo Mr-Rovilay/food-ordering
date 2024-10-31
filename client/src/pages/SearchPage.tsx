@@ -18,7 +18,7 @@ export default function SearchPage() {
     loading,
     searchedRestaurant,
     searchRestaurant,
-    setAppliedFilter,
+   
     appliedFilter,
   } = useRestaurantStore()
 
@@ -35,12 +35,7 @@ export default function SearchPage() {
     }
   }
 
-  const handleRemoveFilter = (filterToRemove: string) => {
-    const updatedFilters = appliedFilter.filter(
-      (filter) => filter !== filterToRemove
-    )
-    setAppliedFilter(updatedFilters)
-  }
+
 
   return (
     <div className="px-4 mx-auto my-10 max-w-7xl sm:px-6 lg:px-8">
@@ -83,7 +78,7 @@ export default function SearchPage() {
                 >
                   {filter}
                   <button
-                    onClick={() => handleRemoveFilter(filter)}
+                   
                     className="ml-2 hover:text-red-500"
                   >
                     <X className="w-3 h-3" />
