@@ -13,7 +13,7 @@ dotenv.config();
 
 const app = express();
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT as string;
 
 // Update CORS configuration to allow your Render frontend URL
 const allowedOrigins = [
