@@ -10,7 +10,7 @@ const testimonials = [
     role: "Marketing Director at TechCorp",
     content: "This product has transformed how we handle our digital marketing campaigns. The analytics features are particularly impressive, and we've seen a 40% increase in campaign effectiveness.",
     rating: 5,
-    avatar: "/api/placeholder/100/100"
+    avatar: "/pic5.jpg"
   },
   {
     id: 2,
@@ -18,7 +18,7 @@ const testimonials = [
     role: "Senior Software Engineer",
     content: "The developer tools and API documentation are top-notch. Integration was seamless and the support team was incredibly helpful. We deployed our solution in half the expected time.",
     rating: 5,
-    avatar: "/api/placeholder/100/100"
+    avatar: "/pic4.jpg"
   },
   {
     id: 3,
@@ -26,7 +26,7 @@ const testimonials = [
     role: "E-commerce Business Owner",
     content: "As someone running a growing business, this platform has been a game-changer. The automation features save me hours each week, and the customer support is exceptional.",
     rating: 4,
-    avatar: "/api/placeholder/100/100"
+    avatar: "/pic3.jpg"
   },
   {
     id: 4,
@@ -34,7 +34,7 @@ const testimonials = [
     role: "Product Manager",
     content: "We've tried several similar solutions, but this one stands out for its intuitive interface and powerful features. Our team adopted it quickly and productivity soared.",
     rating: 5,
-    avatar: "/api/placeholder/100/100"
+    avatar: "/pic2.jpeg"
   },
   {
     id: 5,
@@ -42,7 +42,7 @@ const testimonials = [
     role: "Digital Strategy Consultant",
     content: "The ROI on this product has been phenomenal. My clients love the detailed reporting and the ability to make data-driven decisions quickly.",
     rating: 5,
-    avatar: "/api/placeholder/100/100"
+    avatar: "/pic1.avif"
   },
   {
     id: 6,
@@ -50,7 +50,7 @@ const testimonials = [
     role: "Startup Founder",
     content: "This platform scaled perfectly with our growing startup. From day one to our Series A, it has been an invaluable tool for our operations.",
     rating: 4,
-    avatar: "/api/placeholder/100/100"
+    avatar: "/pic.jpeg"
   }
 ]
 
