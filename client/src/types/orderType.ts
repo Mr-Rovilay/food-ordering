@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export type CheckoutSessionRequest = {
     cartItems:{
-        menuId:string;
-        name:string;
-        image:string;
-        price:string;
-        quantity:string;
+        menuId: string;
+        name: string;
+        image: string;
+        price: string;
+        quantity: string;
     }[];
     deliveryDetails:{
         name:string;

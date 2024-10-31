@@ -18,12 +18,14 @@ import { Package, MapPin, Clock, Currency } from "lucide-react"
 import { useRestaurantStore } from "@/store/useRestaurantStore"
 import { useEffect } from "react"
 
+// Updated CartItem interface to match CheckoutSessionRequest
 interface CartItem {
+  menuId: string;
   name: string;
-  quantity: number;
-  price: number;
+  image: string;
+  price: string;
+  quantity: string;
 }
-
 
 const statusColors = {
   pending: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300",
@@ -34,8 +36,6 @@ const statusColors = {
 } as const;
 
 type OrderStatus = keyof typeof statusColors;
-
-
 
 const formatDate = (dateString: string): string => {
   return new Date(dateString).toLocaleString();
@@ -58,8 +58,9 @@ const Orders = () => {
     return statusColors[normalizedStatus] || "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300";
   };
 
+  // Updated getOrderItemsSummary to handle string quantities
   const getOrderItemsSummary = (items: CartItem[]): string => {
-    const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
+    const totalItems = items.reduce((sum, item) => sum + parseInt(item.quantity, 10), 0);
     return `${totalItems} ${totalItems === 1 ? 'item' : 'items'}`;
   };
 
@@ -123,7 +124,7 @@ const Orders = () => {
                       <div>
                         <Label className="text-sm font-medium text-gray-500">Total Amount</Label>
                         <p className="text-base font-medium dark:text-white">
-                        {order.totalAmount / 100}
+                          {order.totalAmount / 100}
                         </p>
                       </div>
                     </div>

@@ -12,17 +12,35 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { useOrderStore } from "@/store/useOrderStore";
 import { useEffect } from "react";
-import { CartItem } from "@/types/cartType";
 
+// Updated CartItem interface to match your CheckoutSessionRequest
+interface CartItem {
+  menuId: string;
+  name: string;
+  image: string;
+  price: string;
+  quantity: string;
+}
+
+// Updated Order interface to match your Orders type
 interface Order {
+  _id: string;
   cartItems: CartItem[];
   status: string;
-  // Add other order properties as needed
+  totalAmount: number;
+  deliveryDetails: {
+    name: string;
+    email: string;
+    contact: string;
+    address: string;
+    city: string;
+    country: string;
+  };
+  restaurantId: string;
 }
 
 const DELIVERY_FEE = 1000;
 
-// Status configuration object
 const STATUS_STYLES = {
   pending: {
     color: "text-yellow-600",
@@ -60,8 +78,13 @@ const Success = () => {
     getOrderDetails();
   }, [getOrderDetails]);
 
+  // Updated to handle string price and quantity
   const calculateSubtotal = (cartItems: CartItem[]): number => {
-    return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+    return cartItems.reduce((total, item) => {
+      const price = parseFloat(item.price);
+      const quantity = parseInt(item.quantity, 10);
+      return total + (price * quantity);
+    }, 0);
   };
 
   const calculateTotal = (orders: Order[]): {subtotal: number, total: number} => {
@@ -134,39 +157,39 @@ const Success = () => {
                 Order Summary
               </h2>
 
-              {orders.map((order: Orders, index: number) => (
-                <div key={index}>
-                  {order.cartItems.map((item: CartItem, itemIndex: number) => (
-                    <div key={itemIndex} className="p-4 transition-all rounded-lg group hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-4">
-                          <div className="relative">
-                            <img
-                              src={item.image}
-                              alt={item.name}
-                              className="object-cover w-20 h-20 rounded-lg"
-                            />
-                            <Badge className="absolute text-white bg-gray-900 -top-2 -right-2">
-                              {item.quantity}
-                            </Badge>
-                          </div>
-                          <div>
-                            <h3 className="font-medium text-gray-800 dark:text-gray-200">
-                              {item.name}
-                            </h3>
-                          </div>
+              {orders.map((order: Order, index: number) => (
+              <div key={index}>
+                {order.cartItems.map((item: CartItem, itemIndex: number) => (
+                  <div key={itemIndex} className="p-4 transition-all rounded-lg group hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-4">
+                        <div className="relative">
+                          <img
+                            src={item.image}
+                            alt={item.name}
+                            className="object-cover w-20 h-20 rounded-lg"
+                          />
+                          <Badge className="absolute text-white bg-gray-900 -top-2 -right-2">
+                            {item.quantity}
+                          </Badge>
                         </div>
-                        <div className="flex items-center text-gray-800 dark:text-gray-200">
-                          ₦
-                          <span className="text-lg font-medium">
-                            {(item.price * item.quantity).toLocaleString()}
-                          </span>
+                        <div>
+                          <h3 className="font-medium text-gray-800 dark:text-gray-200">
+                            {item.name}
+                          </h3>
                         </div>
                       </div>
+                      <div className="flex items-center text-gray-800 dark:text-gray-200">
+                        ₦
+                        <span className="text-lg font-medium">
+                          {(parseFloat(item.price) * parseInt(item.quantity, 10)).toLocaleString()}
+                        </span>
+                      </div>
                     </div>
-                  ))}
-                </div>
-              ))}
+                  </div>
+                ))}
+              </div>
+            ))}
 
               <Separator className="my-6" />
 
