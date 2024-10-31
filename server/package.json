@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
- "dev": "nodemon index.ts",
-  "stripe": "stripe listen --forward-to localhost:8000/api/order/webhook",
-  "start":"nodemon index.ts"
+    "build": "tsc && npm install && npm install --prefix client && npm run build --prefix client",
+    "dev": "nodemon index.ts",
+    "stripe": "stripe listen --forward-to localhost:8000/api/order/webhook",
+    "start": "nodemon index.ts"
   },
   "keywords": [],
   "author": "",
