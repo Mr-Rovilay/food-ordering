@@ -50,7 +50,7 @@ export default function Cart() {
   }
 
   return (
-    <div className="flex flex-col px-4 mx-auto my-10 max-padd-container">
+    <div className="flex flex-col px-4 mx-auto my-10 mt-20 max-padd-container">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-2xl font-semibold">Shopping Cart ({cart.length})</h2>
         <Button variant="link" onClick={clearCart} className="text-red-500 hover:text-red-600">
