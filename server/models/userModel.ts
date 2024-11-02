@@ -40,7 +40,13 @@ const userSchema = new mongoose.Schema<IUserDocument>({
     },
     contact: {
         type: Number,
-        required: true
+        required: true,
+        validate: {
+            validator: function(v: number) {
+                return v.toString().length <= 11; // Ensure contact number has a maximum of 11 digits
+            },
+            message: props => `${props.value} is not a valid contact number!`
+        }
     },
     address: {
         type: String,
