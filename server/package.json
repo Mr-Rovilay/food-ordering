@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon index.ts",
+ "dev": "ts-node index.ts",
     "start": "node index.ts",
     "build": "npm install && npm install",
     "clean": "rm -rf build && mkdir build",
