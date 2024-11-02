@@ -8,6 +8,7 @@ import userRoute from "./routes/userRoute";
 import restaurantRoute from "./routes/restaurantRoute";
 import menuRoute from "./routes/menuRoute";
 import orderRoute from "./routes/orderRoute";
+import path from "path";
 
 dotenv.config();
 
@@ -15,83 +16,31 @@ const app = express();
 
 const PORT = process.env.PORT || 3000;
 
-// Update CORS configuration to allow your Render frontend URL
-const allowedOrigins = [
-  "http://localhost:5173",  // Local development
-  process.env.FRONTEND_URL, // Your Render frontend URL
-];
+const DIRNAME = path.resolve();
 
-// Middleware
-app.use(bodyParser.json({ limit: "10mb" }));
-app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+// default middleware for any mern project
+app.use(bodyParser.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(express.json());
 app.use(cookieParser());
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps or curl requests)
-      if (!origin) return callback(null, true);
-      
-      if (allowedOrigins.indexOf(origin) === -1) {
-        const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-        return callback(new Error(msg), false);
-      }
-      return callback(null, true);
-    },
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-    credentials: true,
-  })
-);
+const corsOptions = {
+    origin: "http://localhost:5173",
+    credentials: true
+}
+app.use(cors(corsOptions));
 
-// Health check route
-app.get("/health", (req, res) => {
-  res.status(200).json({ status: "ok", message: "Server is running" });
-});
-
-// Routes
+// api
 app.use("/api/user", userRoute);
 app.use("/api/restaurant", restaurantRoute);
 app.use("/api/menu", menuRoute);
 app.use("/api/order", orderRoute);
 
-// Root route
-app.get("/", (req, res) => {
-  res.send("API Server Running Successfully");
+app.use(express.static(path.join(DIRNAME,"/client/dist")));
+app.use("*",(_,res) => {
+    res.sendFile(path.resolve(DIRNAME, "client","dist","index.html"));
 });
 
-// Error handling middleware
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.error(err.stack);
-  res.status(500).json({ 
-    status: "error",
-    message: "Something broke!",
-    error: process.env.NODE_ENV === 'development' ? err.message : undefined
-  });
+app.listen(PORT, () => {
+    connectDB();
+    console.log(`Server listen at port ${PORT}`);
 });
-
-// Connect to database and start server
-const startServer = async () => {
-  try {
-    await connectDB();
-    app.listen(Number(PORT), '0.0.0.0', () => {
-      console.log(`Server running on port ${PORT}`);
-      console.log(`Environment: ${process.env.NODE_ENV}`);
-    });
-  } catch (err) {
-    console.error('Failed to start server:', err);
-    process.exit(1);
-  }
-};
-
-// Handle uncaught errors
-process.on('uncaughtException', (err) => {
-  console.error('Uncaught Exception:', err);
-  process.exit(1);
-});
-
-process.on('unhandledRejection', (err) => {
-  console.error('Unhandled Rejection:', err);
-  process.exit(1);
-});
-
-startServer();
