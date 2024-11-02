@@ -4,10 +4,10 @@
   "main": "index.js",
   "scripts": {
  "dev": "ts-node index.ts",
-    "start": "node index.ts",
-    "build": "npm install && npm install",
+ "build": "tsc",  
+  "start": "node dist/index.js",
     "clean": "rm -rf build && mkdir build",
-    "stripe": "stripe listen --forward-to localhost:8000/api/order/webhook"
+    "stripe": "stripe listen --forward-to localhost:5000/api/order/webhook"
   },
   "keywords": [],
   "author": "",
