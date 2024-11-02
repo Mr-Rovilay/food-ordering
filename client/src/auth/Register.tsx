@@ -173,8 +173,8 @@ export default function Register() {
                 id="contact"
                 name="contact"
                 type="tel"
-                maxLength={10}
-                placeholder="Contact (10 digits)"
+                maxLength={11}
+                placeholder="Contact (11 digits)"
                 value={input.contact}
                 onChange={changeEventHandler}
                 className={errors.contact ? "border-destructive" : ""}
