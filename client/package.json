@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "npm install && cd client && npm install @vitejs/plugin-react @types/node vite typescript @types/react @types/react-dom && npm run build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
