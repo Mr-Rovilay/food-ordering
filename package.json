@@ -3,11 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
- "dev": "ts-node index.ts",
- "build": "tsc",  
-  "start": "node dist/index.js",
-    "clean": "rm -rf build && mkdir build",
-    "stripe": "stripe listen --forward-to localhost:5000/api/order/webhook"
+    "dev": "ts-node ./server/index.ts",
+    "stripe": "stripe listen --forward-to localhost:5000/api/order/webhook",
+    "build": "npm install && npm install --prefix client && npm run build --prefix client",
+    "start": "ts-node --esm server/index.ts"
   },
   "keywords": [],
   "author": "",
@@ -39,6 +38,6 @@
     "@types/node": "^22.5.1",
     "nodemon": "^3.1.7",
     "ts-node": "^10.9.2",
-    "typescript": "^5.5.4"
+    "typescript": "^5.6.3"
   }
 }
