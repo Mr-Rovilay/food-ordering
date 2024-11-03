@@ -3,10 +3,12 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "ts-node nodemon ./server/index.ts",
+    "dev": "nodemon --exec ts-node ./server/index.ts",
     "stripe": "stripe listen --forward-to localhost:5000/api/order/webhook",
-    "build": "npm install && npm install --prefix client  --production=false  && npm run build --prefix client",
-    "start": "server/index.ts"
+    "build": "npm install && npm install --prefix client --production=false && npm run build --prefix client",
+    "start": "ts-node ./server/index.ts",
+    "watch": "tsc -w",
+    "install-deps": "npm install && npm install -g nodemon ts-node typescript"
   },
   "keywords": [],
   "author": "",
