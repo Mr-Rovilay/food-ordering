@@ -91,7 +91,7 @@ const Testimonials = () => {
     <div className="relative max-w-4xl px-4 py-12 mx-auto">
       <Quote className="absolute w-16 h-16 text-gray-200 transform -top-6 -left-6 -rotate-12" />
       
-      <Card className="overflow-hidden shadow-xl bg-gradient-to-br from-white to-gray-50">
+      <Card className="overflow-hidden shadow-xl bg-gradient-to-br from-white to-gray-50 ">
         <div className="relative h-full p-8 md:p-12">
           <div className="flex flex-col items-center space-y-6 text-center">
             <div className="relative">
@@ -129,7 +129,7 @@ const Testimonials = () => {
           }}
           size="icon"
           variant="outline"
-          className="rounded-full shadow-lg bg-white/90 backdrop-blur-sm hover:bg-green"
+          className="rounded-full shadow-lg bg-white/90 backdrop-blur-sm hover:bg-green dark:text-black"
         >
           <ChevronLeft className="w-5 h-5" />
           <span className="sr-only">Previous testimonial</span>
@@ -141,7 +141,7 @@ const Testimonials = () => {
           }}
           size="icon"
           variant="outline"
-          className="rounded-full shadow-lg bg-white/90 backdrop-blur-sm hover:bg-green"
+          className="rounded-full shadow-lg bg-white/90 backdrop-blur-sm hover:bg-green dark:text-black"
         >
           <ChevronRight className="w-5 h-5" />
           <span className="sr-only">Next testimonial</span>

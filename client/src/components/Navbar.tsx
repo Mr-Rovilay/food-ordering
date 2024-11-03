@@ -32,7 +32,6 @@ import {
   SheetContent,
   SheetFooter,
   SheetHeader,
-  SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Separator } from "./ui/separator";
@@ -46,12 +45,12 @@ const Navbar = () => {
 
   return (
     <nav className="fixed top-0 z-50 w-full border-b backdrop-blur-sm bg-white/75 dark:bg-slate-950/75">
-      <div className="max-padd-container sm:px-6 lg:px-8">
+      <div className="max-padd-container sm:px-6 lg:px-12">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
             <h2 className="text-xl font-bold text-transparent md:text-2xl md:font-extrabold bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-400 bg-clip-text">
-              Food<span className="text-green-600">Palace</span>
+              Food<span className="text-green">Palace</span>
             </h2>
           </Link>
 
@@ -104,7 +103,7 @@ const Navbar = () => {
               </Link>
 
               <Avatar className="w-8 h-8 transition transform hover:scale-105">
-                <AvatarImage src={user?.profilePicture} alt="profilephoto"/>
+                <AvatarImage className="object-cover" src={user?.profilePicture} alt="profilephoto"/>
                 <AvatarFallback className="bg-slate-200 dark:bg-slate-700">
                   {user?.fullname?.substring(0, 2) || 'CN'}
                 </AvatarFallback>
@@ -186,7 +185,11 @@ const MobileNav = () => {
       <SheetContent className="w-[300px]">
         <SheetHeader className="space-y-4">
           <div className="flex items-center justify-between">
-            <SheetTitle className="text-xl font-bold">FoodPalace</SheetTitle>
+          <Link to="/" className="flex items-center space-x-2">
+            <h2 className="text-xl font-bold text-transparent md:text-2xl md:font-extrabold bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-400 bg-clip-text">
+              Food<span className="text-green">Palace</span>
+            </h2>
+          </Link>
             <ThemeToggle />
           </div>
           <Separator />
@@ -223,7 +226,7 @@ const MobileNav = () => {
           <div className="flex flex-col w-full space-y-4">
             <div className="flex items-center space-x-3">
               <Avatar className="w-10 h-10">
-                <AvatarImage src={user?.profilePicture} />
+              <AvatarImage className="object-cover" src={user?.profilePicture} alt="profilephoto"/>
                 <AvatarFallback className="bg-slate-200 dark:bg-slate-700">
                   {user?.fullname?.substring(0, 2) || 'CN'}
                 </AvatarFallback>
