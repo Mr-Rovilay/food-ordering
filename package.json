@@ -3,11 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "stripe": "stripe listen --forward-to localhost:5000/api/order/webhook",
-    "build": "npm install && tsc && npm install --prefix client --production=false && npm run build --prefix client",
-    "watch": "tsc -w",
-    "start": "node ./dist/server/index.js",
-    "dev": "nodemon --exec ts-node ./server/index.ts"
+    "dev": "nodemon server/index.ts",
+    "stripe":"stripe listen --forward-to localhost:5000/order/webhook",
+    "build":"npm install && npm install --prefix client && npm run build --prefix client",
+    "start":"nodemon server/index.ts"
   },
   "keywords": [],
   "author": "",
@@ -29,7 +28,8 @@
     "multer": "^1.4.5-lts.1",
     "stripe": "^16.8.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.6.3"
+    "typescript": "^5.6.3",
+     "nodemon": "^3.1.7"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
@@ -38,7 +38,7 @@
     "@types/express": "^4.17.21",
     "@types/jsonwebtoken": "^9.0.6",
     "@types/multer": "^1.4.12",
-    "@types/node": "^22.8.7",
-    "nodemon": "^3.1.7"
+    "@types/node": "^22.8.7"
+   
   }
 }
