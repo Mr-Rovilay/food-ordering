@@ -6,7 +6,7 @@
     "stripe": "stripe listen --forward-to localhost:5000/api/order/webhook",
     "build": "npm install && npm install --prefix client --production=false && npm run build --prefix client",
     "watch": "tsc -w",
-    "start": "node ./dist/server/index.js",
+    "start": "node ./server/index.js",
     "dev": "nodemon --exec ts-node ./server/index.ts"
   },
   "keywords": [],
