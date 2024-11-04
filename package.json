@@ -4,9 +4,9 @@
   "main": "index.js",
   "scripts": {
     "stripe": "stripe listen --forward-to localhost:5000/api/order/webhook",
-    "build": "npm install && npm install --prefix client --production=false && npm run build --prefix client",
+    "build": "npm install && tsc && npm install --prefix client --production=false && npm run build --prefix client",
     "watch": "tsc -w",
-    "start": "node ./server/index.js",
+    "start": "node ./dist/server/index.js",
     "dev": "nodemon --exec ts-node ./server/index.ts"
   },
   "keywords": [],
