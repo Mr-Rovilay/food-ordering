@@ -6,8 +6,8 @@
     "dev": "nodemon --exec ts-node ./server/index.ts",
     "stripe": "stripe listen --forward-to localhost:5000/api/order/webhook",
     "build": "npm install && npm install --prefix client --production=false && npm run build --prefix client",
-    "start": "node ./server/index.ts",
     "watch": "tsc -w",
+    "start":"nodemon server/index.ts",
     "install-deps": "npm install && npm install -g nodemon ts-node typescript"
   },
   "keywords": [],
