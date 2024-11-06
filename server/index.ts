@@ -42,9 +42,9 @@ app.use("/api/order", orderRoute);
 
 // Serve static files in production
 if (process.env.NODE_ENV === 'production') {
-    app.use(express.static(path.join(DIRNAME, "../client/dist")));
+    app.use(express.static(path.join(DIRNAME, "/client/dist")));
     app.get("*", (_, res) => {
-        res.sendFile(path.resolve(DIRNAME, "../client", "dist", "index.html"));
+        res.sendFile(path.resolve(DIRNAME, "/client", "dist", "index.html"));
     });
 }
 
