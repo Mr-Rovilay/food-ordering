@@ -1,13 +1,11 @@
 {
     "compilerOptions": {
-      "target": "es6",
-      "module": "commonjs",
+      "module": "CommonJS",
+      "esModuleInterop": true,
+      "target": "ES2017",
+      "moduleResolution": "node",
       "outDir": "./dist",
       "rootDir": "./server",
-      "strict": true,
-      "esModuleInterop": true,
-      "skipLibCheck": true,
-      "forceConsistentCasingInFileNames": true
-    },
-    "include": ["server/**/*"]
+      "strict": true
+    }
   }
