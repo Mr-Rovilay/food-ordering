@@ -2,6 +2,7 @@
 import { NextFunction, Request, Response } from "express";
 import uploadImageOnCloudinary from "../utils/imageUpload";
 import mongoose, { ObjectId } from "mongoose";
+import multer, { Multer } from 'multer'; 
 import { Menu, NigerianDelicacyCategory } from "../models/menuModel";
 import { Restaurant } from "../models/restaurantModel";
 
