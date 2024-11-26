@@ -1,4 +1,6 @@
-import express from "express"
+// @ts-ignore
+import express from 'express';
+
 import { isAuthenticated } from "../middleware/isAuthenticated";
 import upload from "../middleware/multer";
 import { createRestaurant, getRestaurant, getSingleRestaurant, searchRestaurant, updateOrderStatus, updateRestaurant,getRestaurantOrder } from "../controllers/restaurantController";

@@ -1,3 +1,4 @@
+// @ts-ignore
 import { Request, Response, NextFunction } from "express";
 import { Restaurant } from "../models/restaurantModel";
 import uploadImageOnCloudinary from "../utils/imageUpload";

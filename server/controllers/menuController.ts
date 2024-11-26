@@ -1,3 +1,4 @@
+// @ts-ignore
 import { NextFunction, Request, Response } from "express";
 import uploadImageOnCloudinary from "../utils/imageUpload";
 import mongoose, { ObjectId } from "mongoose";

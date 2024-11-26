@@ -1,3 +1,4 @@
+// @ts-ignore
 import { NextFunction, Request, Response } from "express";
 import Stripe from "stripe";
 import { Order } from "../models/orderModel";
