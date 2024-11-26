@@ -1,6 +1,5 @@
 import express, { Request, Response } from 'express';
 import dotenv from "dotenv";
-import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import userRoute from "../routes/userRoute";
@@ -18,7 +17,6 @@ const PORT = process.env.PORT || 3000;
 
 
 // Middleware
-app.use(bodyParser.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(express.json());
 app.use(cookieParser());
